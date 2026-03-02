@@ -71,6 +71,15 @@
   }
 }
 
+@layer components {
+  .form-select {
+    @apply w-full rounded-md border border-border bg-input px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring appearance-none;
+  }
+  .form-input {
+    @apply w-full rounded-md border border-border bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring;
+  }
+}
+
 @layer utilities {
   .text-gold {
     color: hsl(var(--gold));
@@ -92,16 +101,7 @@
   }
   .text-warning {
     color: hsl(var(--warning));
-}
-
-@layer components {
-  .form-select {
-    @apply w-full rounded-md border border-border bg-input px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring appearance-none;
   }
-  .form-input {
-    @apply w-full rounded-md border border-border bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring;
-  }
-}
   .bg-success {
     background-color: hsl(var(--success));
   }
