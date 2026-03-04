@@ -24,6 +24,9 @@ export default function Dashboard() {
   const { data: dashboard, isLoading, isError } = useDashboard(periodo, materiaId);
   const { data: blocos } = useBlocos();
   const { data: simulados } = useSimulados();
+  const { data: assuntos } = useAssuntos();
+
+  const getAssuntoNome = (id: string) => assuntos?.find((a) => a.id === id)?.nome ?? id;
 
   if (isLoading) return <AppLayout><LoadingState message="Carregando painel estratégico..." /></AppLayout>;
   if (isError) return <AppLayout><ErrorState message="Falha ao carregar o dashboard." /></AppLayout>;
