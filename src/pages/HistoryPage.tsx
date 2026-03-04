@@ -52,7 +52,7 @@ export default function HistoryPage() {
             {sessoes.map((s) => (
               <div key={s.id} className="rounded-md border border-border bg-card p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(s.materia_id)}</p>
+                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(s.materia_id)} <span className="font-normal text-muted-foreground">— {getAssuntoNome(s.assunto_id)}</span></p>
                   <p className="text-xs text-muted-foreground">{s.tipo_sessao} • {s.minutos_liquidos} min • Foco: {s.nivel_foco ?? "—"} • Energia: {s.nivel_energia ?? "—"}</p>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono">{new Date(s.criado_em).toLocaleDateString("pt-BR")}</p>
