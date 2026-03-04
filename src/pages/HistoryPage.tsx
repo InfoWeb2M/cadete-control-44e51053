@@ -2,7 +2,7 @@ import { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
 import { useSessoes, useBlocos, useSimulados } from "@/hooks/usePerformance";
-import { useMaterias } from "@/hooks/useConfiguracoes";
+import { useMaterias, useAssuntos } from "@/hooks/useConfiguracoes";
 
 type Tab = "sessoes" | "blocos" | "simulados";
 
@@ -10,11 +10,13 @@ export default function HistoryPage() {
   const [tab, setTab] = useState<Tab>("sessoes");
 
   const { data: materias } = useMaterias();
+  const { data: assuntos } = useAssuntos();
   const { data: sessoes, isLoading: lS, isError: eS } = useSessoes();
   const { data: blocos, isLoading: lB, isError: eB } = useBlocos();
   const { data: simulados, isLoading: lSim, isError: eSim } = useSimulados();
 
   const getMateriaNome = (id: string) => materias?.find((m) => m.id === id)?.nome ?? id;
+  const getAssuntoNome = (id: string) => assuntos?.find((a) => a.id === id)?.nome ?? id;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sessoes", label: "Sessões" },
