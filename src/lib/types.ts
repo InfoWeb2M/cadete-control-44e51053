@@ -1,4 +1,15 @@
-// Types based on the API OpenAPI spec
+// Types based on the API OpenAPI spec v2.0
+
+export interface MateriaResponse {
+  id: string;
+  nome: string;
+}
+
+export interface AssuntoResponse {
+  id: string;
+  nome: string;
+  materia_id: string;
+}
 
 export interface SessaoEstudoCreate {
   materia_id: string;
@@ -61,14 +72,3 @@ export interface DashboardResumo {
 }
 
 export type Periodo = "semana" | "mes" | "ano" | "total";
-
-export interface Materia {
-  id: string;
-  nome: string;
-}
-
-export interface Assunto {
-  id: string;
-  nome: string;
-  materia_id: string;
-}
