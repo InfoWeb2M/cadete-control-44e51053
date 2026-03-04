@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Clock, ListChecks, Percent, TrendingUp } from "lucide-react";
+import { Clock, ListChecks, Percent, TrendingUp, Lightbulb } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import KpiCard from "@/components/dashboard/KpiCard";
 import MissionStatus from "@/components/dashboard/MissionStatus";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
-import { fetchDashboard, fetchBlocos, fetchSimulados } from "@/lib/api";
-import { MATERIAS, getAssuntoNome } from "@/lib/data";
+import { LoadingState, ErrorState } from "@/components/ui/states";
+import { MateriaSelect } from "@/components/form/Selectors";
+import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
 import type { Periodo } from "@/lib/types";
 
 const PERIODOS: { value: Periodo; label: string }[] = [
@@ -20,32 +20,16 @@ export default function Dashboard() {
   const [periodo, setPeriodo] = useState<Periodo>("semana");
   const [materiaId, setMateriaId] = useState<string>("");
 
-  const { data: dashboard } = useQuery({
-    queryKey: ["dashboard", periodo, materiaId],
-    queryFn: () => fetchDashboard(periodo, materiaId || undefined),
-  });
+  const { data: dashboard, isLoading, isError } = useDashboard(periodo, materiaId);
+  const { data: blocos } = useBlocos();
+  const { data: simulados } = useSimulados();
 
-  const { data: blocos } = useQuery({
-    queryKey: ["blocos"],
-    queryFn: () => fetchBlocos(),
-  });
+  if (isLoading) return <AppLayout><LoadingState message="Carregando painel estratégico..." /></AppLayout>;
+  if (isError) return <AppLayout><ErrorState message="Falha ao carregar o dashboard." /></AppLayout>;
 
-  const { data: simulados } = useQuery({
-    queryKey: ["simulados"],
-    queryFn: () => fetchSimulados(),
-  });
+  const d = dashboard!;
 
-  const d = dashboard || {
-    horas_liquidas: 0,
-    total_questoes: 0,
-    percentual_medio: 0,
-    ipr_geral: 0,
-    tendencia: "ESTÁVEL",
-    status_missao: "EXECUÇÃO INSUFICIENTE",
-    assuntos_criticos: [],
-  };
-
-  // Chart data from blocos
+  // Chart data from API responses (no recalculation)
   const precisionData = (blocos || []).slice(-10).map((b, i) => ({
     label: `B${i + 1}`,
     value: b.percentual_acerto,
@@ -55,6 +39,10 @@ export default function Dashboard() {
     label: `C${s.numero_ciclo}S${s.numero_semana}`,
     value: s.percentual_acerto,
   }));
+
+  const tendenciaVariant = d.tendencia === "ASCENDENTE" ? "success" as const
+    : d.tendencia === "DECLÍNIO" ? "critical" as const
+    : "warning" as const;
 
   return (
     <AppLayout>
@@ -72,22 +60,17 @@ export default function Dashboard() {
           <select
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value as Periodo)}
-            className="rounded-md border border-border bg-input px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="form-select w-auto"
           >
             {PERIODOS.map((p) => (
               <option key={p.value} value={p.value}>{p.label}</option>
             ))}
           </select>
-          <select
+          <MateriaSelect
             value={materiaId}
-            onChange={(e) => setMateriaId(e.target.value)}
-            className="rounded-md border border-border bg-input px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="">Todas as Matérias</option>
-            {MATERIAS.map((m) => (
-              <option key={m.id} value={m.id}>{m.nome}</option>
-            ))}
-          </select>
+            onChange={setMateriaId}
+            className="form-select w-auto"
+          />
         </div>
       </div>
 
@@ -98,14 +81,14 @@ export default function Dashboard() {
           value={`${d.horas_liquidas}h`}
           icon={Clock}
           variant={d.horas_liquidas >= 32 ? "success" : "warning"}
-          subtitle={d.horas_liquidas >= 32 ? "Meta atingida" : "Abaixo da meta (32h)"}
+          subtitle={d.horas_liquidas >= 32 ? "Meta atingida" : "Abaixo da meta"}
         />
         <KpiCard
           title="Questões Resolvidas"
           value={d.total_questoes}
           icon={ListChecks}
           variant={d.total_questoes >= 450 ? "success" : "warning"}
-          subtitle={d.total_questoes >= 450 ? "Volume adequado" : "Abaixo da meta (450)"}
+          subtitle={d.total_questoes >= 450 ? "Volume adequado" : "Abaixo da meta"}
         />
         <KpiCard
           title="IPR Geral"
@@ -118,8 +101,29 @@ export default function Dashboard() {
           title="Tendência"
           value={d.tendencia}
           icon={TrendingUp}
-          variant={d.tendencia === "ASCENDENTE" ? "success" : d.tendencia === "DECLÍNIO" ? "critical" : "warning"}
+          variant={tendenciaVariant}
         />
+      </div>
+
+      {/* Recomendação Estratégica */}
+      <div className={`rounded-md border p-6 mb-6 animate-slide-in ${
+        d.status_missao === "MISSÃO CUMPRIDA"
+          ? "border-success/50 bg-success/10"
+          : "border-critical/50 bg-critical/10"
+      }`}>
+        <div className="flex items-start gap-3">
+          <Lightbulb className={`h-6 w-6 mt-0.5 ${
+            d.status_missao === "MISSÃO CUMPRIDA" ? "text-success" : "text-critical"
+          }`} />
+          <div>
+            <p className="text-xs tracking-wider text-muted-foreground uppercase mb-1">Recomendação Estratégica</p>
+            <p className={`text-xl font-bold tracking-wide ${
+              d.status_missao === "MISSÃO CUMPRIDA" ? "text-success" : "text-critical"
+            }`}>
+              {d.status_missao}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Mission Status + Charts */}
@@ -127,7 +131,7 @@ export default function Dashboard() {
         <MissionStatus
           status={d.status_missao}
           tendencia={d.tendencia}
-          assuntosCriticos={d.assuntos_criticos.map(getAssuntoNome)}
+          assuntosCriticos={d.assuntos_criticos}
         />
         <PerformanceChart
           title="Precisão por Bloco"
