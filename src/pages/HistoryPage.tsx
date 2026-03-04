@@ -69,7 +69,7 @@ export default function HistoryPage() {
             {blocos.map((b) => (
               <div key={b.id} className="rounded-md border border-border bg-card p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(b.materia_id)}</p>
+                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(b.materia_id)} <span className="font-normal text-muted-foreground">— {getAssuntoNome(b.assunto_id)}</span></p>
                   <p className="text-xs text-muted-foreground">
                     {b.total_acertos}/{b.total_questoes} • Dif: {b.dificuldade} • {Math.round(b.tempo_total_segundos / 60)}min • Tempo/Q: {b.tempo_medio_por_questao}s
                   </p>
