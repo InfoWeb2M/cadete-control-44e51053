@@ -7,6 +7,7 @@ import PerformanceChart from "@/components/dashboard/PerformanceChart";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { MateriaSelect } from "@/components/form/Selectors";
 import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
+import { useAssuntos } from "@/hooks/useConfiguracoes";
 import type { Periodo } from "@/lib/types";
 
 const PERIODOS: { value: Periodo; label: string }[] = [
