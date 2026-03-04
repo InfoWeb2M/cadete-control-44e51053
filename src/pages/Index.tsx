@@ -135,7 +135,7 @@ export default function Dashboard() {
         <MissionStatus
           status={d.status_missao}
           tendencia={d.tendencia}
-          assuntosCriticos={d.assuntos_criticos}
+          assuntosCriticos={d.assuntos_criticos.map(getAssuntoNome)}
         />
         <PerformanceChart
           title="Precisão por Bloco"
