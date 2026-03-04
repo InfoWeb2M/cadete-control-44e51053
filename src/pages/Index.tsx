@@ -7,6 +7,7 @@ import PerformanceChart from "@/components/dashboard/PerformanceChart";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { MateriaSelect } from "@/components/form/Selectors";
 import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
+import { useAssuntos } from "@/hooks/useConfiguracoes";
 import type { Periodo } from "@/lib/types";
 
 const PERIODOS: { value: Periodo; label: string }[] = [
@@ -23,6 +24,9 @@ export default function Dashboard() {
   const { data: dashboard, isLoading, isError } = useDashboard(periodo, materiaId);
   const { data: blocos } = useBlocos();
   const { data: simulados } = useSimulados();
+  const { data: assuntos } = useAssuntos();
+
+  const getAssuntoNome = (id: string) => assuntos?.find((a) => a.id === id)?.nome ?? id;
 
   if (isLoading) return <AppLayout><LoadingState message="Carregando painel estratégico..." /></AppLayout>;
   if (isError) return <AppLayout><ErrorState message="Falha ao carregar o dashboard." /></AppLayout>;
@@ -131,7 +135,7 @@ export default function Dashboard() {
         <MissionStatus
           status={d.status_missao}
           tendencia={d.tendencia}
-          assuntosCriticos={d.assuntos_criticos}
+          assuntosCriticos={d.assuntos_criticos.map(getAssuntoNome)}
         />
         <PerformanceChart
           title="Precisão por Bloco"

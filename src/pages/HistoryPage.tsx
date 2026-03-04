@@ -2,7 +2,7 @@ import { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
 import { useSessoes, useBlocos, useSimulados } from "@/hooks/usePerformance";
-import { useMaterias } from "@/hooks/useConfiguracoes";
+import { useMaterias, useAssuntos } from "@/hooks/useConfiguracoes";
 
 type Tab = "sessoes" | "blocos" | "simulados";
 
@@ -10,11 +10,13 @@ export default function HistoryPage() {
   const [tab, setTab] = useState<Tab>("sessoes");
 
   const { data: materias } = useMaterias();
+  const { data: assuntos } = useAssuntos();
   const { data: sessoes, isLoading: lS, isError: eS } = useSessoes();
   const { data: blocos, isLoading: lB, isError: eB } = useBlocos();
   const { data: simulados, isLoading: lSim, isError: eSim } = useSimulados();
 
   const getMateriaNome = (id: string) => materias?.find((m) => m.id === id)?.nome ?? id;
+  const getAssuntoNome = (id: string) => assuntos?.find((a) => a.id === id)?.nome ?? id;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sessoes", label: "Sessões" },
@@ -50,7 +52,7 @@ export default function HistoryPage() {
             {sessoes.map((s) => (
               <div key={s.id} className="rounded-md border border-border bg-card p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(s.materia_id)}</p>
+                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(s.materia_id)} <span className="font-normal text-muted-foreground">— {getAssuntoNome(s.assunto_id)}</span></p>
                   <p className="text-xs text-muted-foreground">{s.tipo_sessao} • {s.minutos_liquidos} min • Foco: {s.nivel_foco ?? "—"} • Energia: {s.nivel_energia ?? "—"}</p>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono">{new Date(s.criado_em).toLocaleDateString("pt-BR")}</p>
@@ -67,7 +69,7 @@ export default function HistoryPage() {
             {blocos.map((b) => (
               <div key={b.id} className="rounded-md border border-border bg-card p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(b.materia_id)}</p>
+                  <p className="text-sm font-semibold text-foreground">{getMateriaNome(b.materia_id)} <span className="font-normal text-muted-foreground">— {getAssuntoNome(b.assunto_id)}</span></p>
                   <p className="text-xs text-muted-foreground">
                     {b.total_acertos}/{b.total_questoes} • Dif: {b.dificuldade} • {Math.round(b.tempo_total_segundos / 60)}min • Tempo/Q: {b.tempo_medio_por_questao}s
                   </p>
