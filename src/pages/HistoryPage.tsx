@@ -4,10 +4,6 @@ import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
 import { useSessoes, useBlocos, useSimulados } from "@/hooks/usePerformance";
 import { useMaterias, useAssuntos } from "@/hooks/useConfiguracoes";
 
-type Tab = "sessoes" | "blocos" | "simulados";
-
-export default function HistoryPage() {
-  const [tab, setTab] = useState<Tab>("sessoes");
 
   const { data: materias } = useMaterias();
   const { data: assuntos } = useAssuntos();
