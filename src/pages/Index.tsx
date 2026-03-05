@@ -44,6 +44,11 @@ export default function Dashboard() {
     value: s.percentual_acerto,
   }));
 
+  const statusToVariant = (status: string) =>
+    status === "ACIMA" || status === "DENTRO" ? "success" as const
+    : status === "ABAIXO" ? "warning" as const
+    : "critical" as const;
+
   const tendenciaVariant = d.tendencia === "ASCENDENTE" ? "success" as const
     : d.tendencia === "DECLÍNIO" ? "critical" as const
     : "warning" as const;
