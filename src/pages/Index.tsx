@@ -44,6 +44,11 @@ export default function Dashboard() {
     value: s.percentual_acerto,
   }));
 
+  const statusToVariant = (status: string) =>
+    status === "ACIMA" || status === "DENTRO" ? "success" as const
+    : status === "ABAIXO" ? "warning" as const
+    : "critical" as const;
+
   const tendenciaVariant = d.tendencia === "ASCENDENTE" ? "success" as const
     : d.tendencia === "DECLÍNIO" ? "critical" as const
     : "warning" as const;
@@ -84,15 +89,15 @@ export default function Dashboard() {
           title="Horas Líquidas"
           value={`${d.horas_liquidas}h`}
           icon={Clock}
-          variant={d.horas_liquidas >= 32 ? "success" : "warning"}
-          subtitle={d.horas_liquidas >= 32 ? "Meta atingida" : "Abaixo da meta"}
+          variant={statusToVariant(d.status_horas)}
+          subtitle={d.status_horas}
         />
         <KpiCard
           title="Questões Resolvidas"
           value={d.total_questoes}
           icon={ListChecks}
-          variant={d.total_questoes >= 450 ? "success" : "warning"}
-          subtitle={d.total_questoes >= 450 ? "Volume adequado" : "Abaixo da meta"}
+          variant={statusToVariant(d.status_questoes)}
+          subtitle={d.status_questoes}
         />
         <KpiCard
           title="IPR Geral"
@@ -121,10 +126,13 @@ export default function Dashboard() {
           }`} />
           <div>
             <p className="text-xs tracking-wider text-muted-foreground uppercase mb-1">Recomendação Estratégica</p>
-            <p className={`text-xl font-bold tracking-wide ${
+            <p className={`text-xl font-bold tracking-wide mb-2 ${
               d.status_missao === "MISSÃO CUMPRIDA" ? "text-success" : "text-critical"
             }`}>
               {d.status_missao}
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {d.recomendacao}
             </p>
           </div>
         </div>
