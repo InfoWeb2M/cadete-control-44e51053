@@ -89,15 +89,15 @@ export default function Dashboard() {
           title="Horas Líquidas"
           value={`${d.horas_liquidas}h`}
           icon={Clock}
-          variant={d.horas_liquidas >= 32 ? "success" : "warning"}
-          subtitle={d.horas_liquidas >= 32 ? "Meta atingida" : "Abaixo da meta"}
+          variant={statusToVariant(d.status_horas)}
+          subtitle={d.status_horas}
         />
         <KpiCard
           title="Questões Resolvidas"
           value={d.total_questoes}
           icon={ListChecks}
-          variant={d.total_questoes >= 450 ? "success" : "warning"}
-          subtitle={d.total_questoes >= 450 ? "Volume adequado" : "Abaixo da meta"}
+          variant={statusToVariant(d.status_questoes)}
+          subtitle={d.status_questoes}
         />
         <KpiCard
           title="IPR Geral"
