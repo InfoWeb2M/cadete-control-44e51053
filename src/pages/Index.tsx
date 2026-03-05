@@ -126,10 +126,13 @@ export default function Dashboard() {
           }`} />
           <div>
             <p className="text-xs tracking-wider text-muted-foreground uppercase mb-1">Recomendação Estratégica</p>
-            <p className={`text-xl font-bold tracking-wide ${
+            <p className={`text-xl font-bold tracking-wide mb-2 ${
               d.status_missao === "MISSÃO CUMPRIDA" ? "text-success" : "text-critical"
             }`}>
               {d.status_missao}
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {d.recomendacao}
             </p>
           </div>
         </div>
