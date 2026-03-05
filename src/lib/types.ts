@@ -69,6 +69,9 @@ export interface DashboardResumo {
   tendencia: string;
   status_missao: string;
   assuntos_criticos: string[];
+  status_horas: string;
+  status_questoes: string;
+  recomendacao: string;
 }
 
 export type Periodo = "semana" | "mes" | "ano" | "total";
