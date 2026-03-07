@@ -29,7 +29,11 @@ export default function RedacaoForm() {
       tempo_escrita_min: tempoEscrita ? Number(tempoEscrita) : null,
       observacoes: observacoes || null,
       repertorios: repertorios || null,
-      ...notas,
+      competencia1: notas.competencia1,
+      competencia2: notas.competencia2,
+      competencia3: notas.competencia3,
+      competencia4: notas.competencia4,
+      competencia5: notas.competencia5,
     });
   };
 

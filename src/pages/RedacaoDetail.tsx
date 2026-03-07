@@ -4,7 +4,6 @@ import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { useRedacao } from "@/hooks/useRedacoes";
 import { getCompetenciaNome } from "@/lib/types";
-import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 
 function competenciaColor(nota: number): string {

@@ -27,6 +27,9 @@ const App = () => (
           <Route path="/bloco" element={<BlockForm />} />
           <Route path="/simulado" element={<ExamForm />} />
           <Route path="/historico" element={<HistoryPage />} />
+          <Route path="/redacoes" element={<RedacaoList />} />
+          <Route path="/redacoes/nova" element={<RedacaoForm />} />
+          <Route path="/redacoes/:id" element={<RedacaoDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
