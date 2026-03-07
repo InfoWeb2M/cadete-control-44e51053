@@ -88,3 +88,16 @@ export async function createSimulado(data: SimuladoSemanalCreate): Promise<Simul
 export async function fetchSimulados(skip = 0, limit = 100): Promise<SimuladoSemanalResponse[]> {
   return request(`/api/v1/performance/simulados?skip=${skip}&limit=${limit}`);
 }
+
+// Redações
+export async function fetchRedacoes(): Promise<RedacaoResponse[]> {
+  return request("/api/v1/performance/redacoes");
+}
+
+export async function fetchRedacao(id: string): Promise<RedacaoResponse> {
+  return request(`/api/v1/performance/redacoes/${id}`);
+}
+
+export async function createRedacao(data: RedacaoRequest): Promise<RedacaoResponse> {
+  return request("/api/v1/performance/redacoes", { method: "POST", body: JSON.stringify(data) });
+}
