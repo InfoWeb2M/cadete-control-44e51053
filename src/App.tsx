@@ -8,6 +8,9 @@ import SessionForm from "./pages/SessionForm";
 import BlockForm from "./pages/BlockForm";
 import ExamForm from "./pages/ExamForm";
 import HistoryPage from "./pages/HistoryPage";
+import RedacaoList from "./pages/RedacaoList";
+import RedacaoForm from "./pages/RedacaoForm";
+import RedacaoDetail from "./pages/RedacaoDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
