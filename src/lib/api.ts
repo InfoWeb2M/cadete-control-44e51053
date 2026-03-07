@@ -8,6 +8,8 @@ import type {
   BlocoQuestoesResponse,
   SimuladoSemanalCreate,
   SimuladoSemanalResponse,
+  RedacaoRequest,
+  RedacaoResponse,
   Periodo,
 } from "./types";
 

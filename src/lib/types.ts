@@ -74,4 +74,51 @@ export interface DashboardResumo {
   recomendacao: string;
 }
 
+export interface RedacaoRequest {
+  tema: string;
+  eixo_tematico?: string | null;
+  tempo_escrita_min?: number | null;
+  observacoes?: string | null;
+  repertorios?: string | null;
+  competencia1: number;
+  competencia2: number;
+  competencia3: number;
+  competencia4: number;
+  competencia5: number;
+}
+
+export interface RedacaoResponse {
+  id: string;
+  tema: string;
+  eixo_tematico: string | null;
+  data_escrita: string;
+  tempo_escrita_min: number | null;
+  observacoes: string | null;
+  repertorios: string | null;
+  competencia1: number;
+  competencia2: number;
+  competencia3: number;
+  competencia4: number;
+  competencia5: number;
+  nota_total: number;
+  status: string;
+  competencia_mais_fraca: number;
+  diagnostico: string;
+  recomendacao: string;
+  criado_em: string;
+}
+
 export type Periodo = "semana" | "mes" | "ano" | "total";
+
+export const COMPETENCIAS_MAP: Record<string, string> = {
+  C1: "Domínio da norma culta da língua portuguesa",
+  C2: "Compreensão da proposta de redação",
+  C3: "Seleção e organização de argumentos",
+  C4: "Conhecimento dos mecanismos linguísticos",
+  C5: "Proposta de intervenção",
+};
+
+export function getCompetenciaNome(code: string | number): string {
+  const key = typeof code === "number" ? `C${code}` : code;
+  return COMPETENCIAS_MAP[key] ?? key;
+}
