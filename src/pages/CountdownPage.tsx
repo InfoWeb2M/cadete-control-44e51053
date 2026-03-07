@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Sparkles, Clock, Calendar } from "lucide-react";
+import { Heart, Sparkles, Calendar } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 
 const TARGET_DATE = new Date("2026-06-12T00:00:00");

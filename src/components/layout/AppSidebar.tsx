@@ -7,6 +7,7 @@ import {
   History,
   PenTool,
   Shield,
+  Heart,
 } from "lucide-react";
 
 const navItems = [

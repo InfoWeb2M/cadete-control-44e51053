@@ -31,6 +31,7 @@ const App = () => (
           <Route path="/redacoes" element={<RedacaoList />} />
           <Route path="/redacoes/nova" element={<RedacaoForm />} />
           <Route path="/redacoes/:id" element={<RedacaoDetail />} />
+          <Route path="/countdown" element={<CountdownPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
