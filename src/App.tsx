@@ -11,6 +11,7 @@ import HistoryPage from "./pages/HistoryPage";
 import RedacaoList from "./pages/RedacaoList";
 import RedacaoForm from "./pages/RedacaoForm";
 import RedacaoDetail from "./pages/RedacaoDetail";
+import CountdownPage from "./pages/CountdownPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
