@@ -16,6 +16,7 @@ const navItems = [
   { to: "/simulado", icon: Target, label: "Simulado" },
   { to: "/redacoes", icon: PenTool, label: "Redações" },
   { to: "/historico", icon: History, label: "Histórico" },
+  { to: "/countdown", icon: Heart, label: "Countdown ❤️" },
 ];
 
 export default function AppSidebar() {
