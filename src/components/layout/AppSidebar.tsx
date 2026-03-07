@@ -5,6 +5,7 @@ import {
   ListChecks,
   Target,
   History,
+  PenTool,
   Shield,
 } from "lucide-react";
 
@@ -13,6 +14,7 @@ const navItems = [
   { to: "/sessao", icon: BookOpen, label: "Sessão de Estudo" },
   { to: "/bloco", icon: ListChecks, label: "Bloco de Questões" },
   { to: "/simulado", icon: Target, label: "Simulado" },
+  { to: "/redacoes", icon: PenTool, label: "Redações" },
   { to: "/historico", icon: History, label: "Histórico" },
 ];
 

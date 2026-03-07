@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import KpiCard from "@/components/dashboard/KpiCard";
 import MissionStatus from "@/components/dashboard/MissionStatus";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
+import { UltimaRedacaoCard, MediaRedacoesCard, ProgressoRedacoesChart } from "@/components/dashboard/RedacaoCards";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { MateriaSelect } from "@/components/form/Selectors";
 import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
@@ -139,7 +140,7 @@ export default function Dashboard() {
       </div>
 
       {/* Mission Status + Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <MissionStatus
           status={d.status_missao}
           tendencia={d.tendencia}
@@ -159,6 +160,13 @@ export default function Dashboard() {
           color="hsl(90, 40%, 35%)"
           unit="%"
         />
+      </div>
+
+      {/* Redações */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <UltimaRedacaoCard />
+        <MediaRedacoesCard />
+        <ProgressoRedacoesChart />
       </div>
     </AppLayout>
   );
