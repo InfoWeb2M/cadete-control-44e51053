@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import KpiCard from "@/components/dashboard/KpiCard";
 import MissionStatus from "@/components/dashboard/MissionStatus";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
+import { UltimaRedacaoCard, MediaRedacoesCard, ProgressoRedacoesChart } from "@/components/dashboard/RedacaoCards";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { MateriaSelect } from "@/components/form/Selectors";
 import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
