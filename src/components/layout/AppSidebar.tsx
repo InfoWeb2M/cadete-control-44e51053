@@ -5,6 +5,7 @@ import {
   ListChecks,
   Target,
   History,
+  PenTool,
   Shield,
 } from "lucide-react";
 
