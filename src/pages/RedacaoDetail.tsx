@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, FileText, AlertTriangle, Lightbulb } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Lightbulb } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { useRedacao } from "@/hooks/useRedacoes";
