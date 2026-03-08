@@ -50,6 +50,14 @@ export function UltimaRedacaoCard() {
   );
 }
 
+function getNivel(media: number): string {
+  if (media >= 900) return "Elite";
+  if (media >= 800) return "Avançado";
+  if (media >= 600) return "Intermediário";
+  if (media >= 400) return "Básico";
+  return "Iniciante";
+}
+
 export function MediaRedacoesCard() {
   const { data: redacoes } = useRedacoes();
 
@@ -59,6 +67,18 @@ export function MediaRedacoesCard() {
     redacoes.reduce((sum, r) => sum + r.nota_total, 0) / redacoes.length
   );
 
+  // Variação: média anterior (sem a última) vs última nota
+  const ultima = redacoes[0]?.nota_total ?? 0;
+  const mediaAnterior =
+    redacoes.length > 1
+      ? Math.round(redacoes.slice(1).reduce((s, r) => s + r.nota_total, 0) / (redacoes.length - 1))
+      : media;
+  const variacao = ultima - mediaAnterior;
+
+  const META = 900;
+  const progresso = Math.min(Math.round((media / META) * 100), 100);
+  const nivel = getNivel(media);
+
   return (
     <div className="rounded-md border border-border bg-card p-5 animate-slide-in">
       <div className="flex items-start justify-between mb-3">
@@ -67,8 +87,37 @@ export function MediaRedacoesCard() {
         </p>
         <BarChart3 className="h-4 w-4 text-accent" />
       </div>
+
       <p className="text-3xl font-bold font-mono text-foreground">{media}</p>
-      <p className="text-xs text-muted-foreground mt-1">
+
+      {/* Variação */}
+      <p className={`text-xs font-medium mt-1 ${
+        variacao > 0 ? "text-success" : variacao < 0 ? "text-critical" : "text-muted-foreground"
+      }`}>
+        {variacao > 0 ? `↑ +${variacao}` : variacao < 0 ? `↓ ${variacao}` : "0"}{" "}
+        <span className="font-normal">desde a última redação</span>
+      </p>
+
+      {/* Meta + Progresso */}
+      <div className="mt-3">
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+          <span>Meta: {META}</span>
+          <span>{progresso}%</span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+          <div
+            className="h-full rounded-full bg-accent transition-all duration-700 ease-out"
+            style={{ width: `${progresso}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Nível */}
+      <p className="text-[10px] text-muted-foreground mt-2">
+        Nível: <span className="text-accent font-medium">{nivel}</span>
+      </p>
+
+      <p className="text-xs text-muted-foreground mt-2">
         Total: {redacoes.length} {redacoes.length === 1 ? "redação" : "redações"}
       </p>
     </div>
