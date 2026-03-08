@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Timer, Clock, Play, Pause, RotateCcw } from "lucide-react";
+import { Timer, Clock, Play, Pause, RotateCcw, Maximize, Minimize } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 
 // ── Persistent state (survives tab switches) ──────────────────────
