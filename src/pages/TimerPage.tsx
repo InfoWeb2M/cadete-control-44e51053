@@ -108,11 +108,9 @@ function fmtTimer(ms: number) {
 
 function fmtStopwatch(ms: number) {
   const totalSec = Math.floor(ms / 1000);
-  const centis = Math.floor((ms % 1000) / 10);
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
-  if (m > 0) return `${m}:${String(s).padStart(2, "0")}.${String(centis).padStart(2, "0")}`;
-  return `${s}.${String(centis).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 // ── Main page ─────────────────────────────────────────────────────
