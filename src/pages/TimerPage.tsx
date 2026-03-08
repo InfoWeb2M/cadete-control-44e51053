@@ -122,6 +122,7 @@ export default function TimerPage() {
   const [finished, setFinished] = useState(persisted.finished);
   const lastTickRef = useRef<number | null>(persisted.lastTick);
   const alarmPlayed = useRef(persisted.finished);
+  const [fullscreen, setFullscreen] = useState(false);
 
   // Sync back elapsed from wall-clock if was running while away
   useEffect(() => {
