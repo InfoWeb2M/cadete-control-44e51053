@@ -8,6 +8,7 @@ import {
   PenTool,
   Shield,
   Heart,
+  Timer,
 } from "lucide-react";
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { to: "/bloco", icon: ListChecks, label: "Bloco de Questões" },
   { to: "/simulado", icon: Target, label: "Simulado" },
   { to: "/redacoes", icon: PenTool, label: "Redações" },
+  { to: "/timer", icon: Timer, label: "Timer" },
   { to: "/historico", icon: History, label: "Histórico" },
   { to: "/countdown", icon: Heart, label: "Countdown ❤️" },
 ];
