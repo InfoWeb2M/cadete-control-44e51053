@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Timer, Clock, Play, Pause, RotateCcw } from "lucide-react";
+import { Timer, Clock, Play, Pause, RotateCcw, Maximize, Minimize } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 
 // ── Persistent state (survives tab switches) ──────────────────────
@@ -122,6 +122,7 @@ export default function TimerPage() {
   const [finished, setFinished] = useState(persisted.finished);
   const lastTickRef = useRef<number | null>(persisted.lastTick);
   const alarmPlayed = useRef(persisted.finished);
+  const [fullscreen, setFullscreen] = useState(false);
 
   // Sync back elapsed from wall-clock if was running while away
   useEffect(() => {
@@ -285,9 +286,8 @@ export default function TimerPage() {
     { label: "45:00", sec: 2700 },
   ];
 
-  return (
-    <AppLayout>
-      <div className="flex flex-col items-center gap-8 py-6">
+  const content = (
+      <div className={`flex flex-col items-center gap-8 py-6 ${fullscreen ? "justify-center min-h-screen" : ""}`}>
         {/* Mode tabs */}
         <div className="flex items-center gap-1 p-1 rounded-lg bg-muted">
           <button
@@ -398,10 +398,24 @@ export default function TimerPage() {
           </button>
         </div>
 
+        {/* Fullscreen toggle */}
+        <button
+          onClick={() => setFullscreen((f) => !f)}
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground bg-card transition-all"
+        >
+          {fullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+          {fullscreen ? "Sair da tela cheia" : "Tela cheia"}
+        </button>
+
         <p className="text-[10px] tracking-widest uppercase text-muted-foreground">
           Pressione <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-foreground text-[10px] font-mono">Space</kbd> para pausar / continuar
         </p>
       </div>
-    </AppLayout>
   );
+
+  if (fullscreen) {
+    return <div className="fixed inset-0 z-50 bg-background">{content}</div>;
+  }
+
+  return <AppLayout>{content}</AppLayout>;
 }
