@@ -286,9 +286,8 @@ export default function TimerPage() {
     { label: "45:00", sec: 2700 },
   ];
 
-  return (
-    <AppLayout>
-      <div className="flex flex-col items-center gap-8 py-6">
+  const content = (
+      <div className={`flex flex-col items-center gap-8 py-6 ${fullscreen ? "justify-center min-h-screen" : ""}`}>
         {/* Mode tabs */}
         <div className="flex items-center gap-1 p-1 rounded-lg bg-muted">
           <button
