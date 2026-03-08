@@ -398,10 +398,24 @@ export default function TimerPage() {
           </button>
         </div>
 
+        {/* Fullscreen toggle */}
+        <button
+          onClick={() => setFullscreen((f) => !f)}
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground bg-card transition-all"
+        >
+          {fullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+          {fullscreen ? "Sair da tela cheia" : "Tela cheia"}
+        </button>
+
         <p className="text-[10px] tracking-widest uppercase text-muted-foreground">
           Pressione <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-foreground text-[10px] font-mono">Space</kbd> para pausar / continuar
         </p>
       </div>
-    </AppLayout>
   );
+
+  if (fullscreen) {
+    return <div className="fixed inset-0 z-50 bg-background">{content}</div>;
+  }
+
+  return <AppLayout>{content}</AppLayout>;
 }
