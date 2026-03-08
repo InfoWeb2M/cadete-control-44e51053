@@ -8,6 +8,7 @@ import {
   PenTool,
   Shield,
   Heart,
+  Timer,
 } from "lucide-react";
 
 const navItems = [
