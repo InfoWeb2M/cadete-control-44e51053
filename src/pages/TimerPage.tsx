@@ -151,7 +151,7 @@ export default function TimerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist on every state change
+  // Persist on every state change + update document title
   useEffect(() => {
     persisted = {
       mode,
@@ -161,7 +161,24 @@ export default function TimerPage() {
       lastTick: lastTickRef.current,
       finished,
     };
+
+    if (running || elapsed > 0) {
+      const display =
+        mode === "timer" ? fmtTimer(timerSeconds * 1000 - elapsed) : fmtStopwatch(elapsed);
+      document.title = `${display} - Provectus`;
+    } else {
+      document.title = "Provectus";
+    }
   });
+
+  // Reset title on unmount only if not running
+  useEffect(() => {
+    return () => {
+      if (!persisted.running && persisted.elapsed === 0) {
+        document.title = "Provectus";
+      }
+    };
+  }, []);
 
   // Tick loop
   useEffect(() => {
