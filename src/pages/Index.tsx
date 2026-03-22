@@ -163,6 +163,12 @@ export default function Dashboard() {
         />
       </div>
 
+      {/* Desempenho por Matéria */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <HorasPorMateriaChart />
+        <IprPorMateriaChart />
+      </div>
+
       {/* Redações */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <UltimaRedacaoCard />
