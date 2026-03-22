@@ -5,6 +5,7 @@ import KpiCard from "@/components/dashboard/KpiCard";
 import MissionStatus from "@/components/dashboard/MissionStatus";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
 import { UltimaRedacaoCard, MediaRedacoesCard, ProgressoRedacoesChart } from "@/components/dashboard/RedacaoCards";
+import { HorasPorMateriaChart, IprPorMateriaChart } from "@/components/dashboard/SubjectCharts";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { MateriaSelect } from "@/components/form/Selectors";
 import { useDashboard, useBlocos, useSimulados } from "@/hooks/usePerformance";
@@ -160,6 +161,12 @@ export default function Dashboard() {
           color="hsl(90, 40%, 35%)"
           unit="%"
         />
+      </div>
+
+      {/* Desempenho por Matéria */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <HorasPorMateriaChart />
+        <IprPorMateriaChart />
       </div>
 
       {/* Redações */}
