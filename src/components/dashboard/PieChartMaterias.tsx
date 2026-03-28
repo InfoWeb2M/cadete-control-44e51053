@@ -1,97 +1,174 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { MateriaPerformance } from "@/lib/types";
 import { useMemo } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#84cc16", "#ec4899"];
+const COLORS = [
+  "hsl(var(--success))",
+  "hsl(var(--accent))",
+  "hsl(90, 40%, 35%)",
+  "hsl(var(--critical))",
+  "hsl(200, 60%, 50%)",
+  "hsl(280, 45%, 55%)",
+  "hsl(170, 50%, 40%)",
+  "hsl(330, 50%, 50%)",
+];
+
+function getIprColor(ipr: number): string {
+  if (ipr >= 80) return "hsl(var(--success))";
+  if (ipr >= 70) return "hsl(var(--warning))";
+  return "hsl(var(--critical))";
+}
 
 interface PieChartMateriasProps {
-    data: MateriaPerformance[];
+  data: MateriaPerformance[];
+}
+
+interface RadialBarProps {
+  materia: string;
+  ipr: number;
+  color: string;
+  index: number;
+  total: number;
+}
+
+function RadialBar({ materia, ipr, color, index, total }: RadialBarProps) {
+  const size = 120;
+  const strokeWidth = 10;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(Math.max(ipr, 0), 100);
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center gap-2 p-3">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          {/* Background track */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--muted))"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+          {/* Progress arc */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={getIprColor(ipr)}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="transition-all duration-1000 ease-out"
+            style={{
+              filter: ipr >= 80 ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
+            }}
+          />
+        </svg>
+        {/* Center text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-mono font-bold text-foreground">
+            {ipr.toFixed(0)}%
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-col items-center gap-0.5 max-w-[120px]">
+        <span className="text-xs font-semibold text-foreground truncate max-w-full text-center">
+          {materia}
+        </span>
+        <span
+          className="text-[10px] font-mono uppercase tracking-wider"
+          style={{ color: getIprColor(ipr) }}
+        >
+          {ipr >= 80 ? "Excelente" : ipr >= 70 ? "Operacional" : "Crítico"}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function PieChartMaterias({ data }: PieChartMateriasProps) {
-    const chartConfig = useMemo((): ChartConfig => {
-        const config: ChartConfig = {};
-        if (!data || !Array.isArray(data)) return config;
-        data.forEach((item, index) => {
-            config[item.materia.nome] = {
-                color: COLORS[index % COLORS.length],
-            };
-        });
-        return config;
-    }, [data]);
-
-    const pieData = data.map(item => ({
+  const pieData = useMemo(
+    () =>
+      data.map((item, index) => ({
         materia: item.materia.nome,
-        ipr: Math.max(item.ipr, 0.1), // Avoid zero slices
-    }));
+        ipr: Math.max(item.ipr, 0),
+        color: COLORS[index % COLORS.length],
+      })),
+    [data]
+  );
 
-    if (!pieData.length) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base font-medium tracking-wider uppercase text-muted-foreground">
-                        Distribuição IPR por Matéria
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-8 text-center text-muted-foreground">Nenhuma matéria disponível</CardContent>
-            </Card>
-        );
-    }
+  const avgIpr = useMemo(() => {
+    if (!pieData.length) return 0;
+    return pieData.reduce((sum, d) => sum + d.ipr, 0) / pieData.length;
+  }, [pieData]);
 
+  if (!pieData.length) {
     return (
-        <Card className="col-span-full">
-            <CardHeader>
-                <CardTitle className="text-xl font-bold tracking-tight text-foreground pb-2">
-                    Distribuição de IPR por Matéria
-                </CardTitle>
-                <p className="text-sm text-muted-foreground px-2">
-                    {pieData.reduce((sum, d) => sum + d.ipr, 0).toFixed(0)}% total IPR
-                </p>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="h-64 w-full p-4 md:p-6 flex gap-6">
-                    <div className="flex-1">
-                        <ChartContainer config={chartConfig} className="h-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={pieData}
-                                        dataKey="ipr"
-                                        nameKey="materia"
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius="40%"
-                                        outerRadius="70%"
-                                        paddingAngle={1}
-                                    >
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip content={<ChartTooltipContent />} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </div>
-                    <div className="w-32 flex flex-col gap-3 self-stretch">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Legenda
-                        </span>
-                        {pieData.map((entry, index) => (
-                            <div key={entry.materia} className="flex items-center gap-2">
-                                <div
-                                    className="w-3 h-3 rounded-full ring-1 ring-background"
-                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                />
-                                <span className="text-xs font-medium truncate">{entry.materia}</span>
-                                <span className="ml-auto text-xs font-mono">{entry.ipr.toFixed(0)}%</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium tracking-wider uppercase text-muted-foreground">
+            IPR por Matéria
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8 text-center text-muted-foreground">
+          Nenhuma matéria disponível
+        </CardContent>
+      </Card>
     );
+  }
+
+  return (
+    <Card className="col-span-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div>
+          <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+            IPR por Matéria
+          </CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            Índice de Performance por matéria · Média:{" "}
+            <span
+              className="font-mono font-semibold"
+              style={{ color: getIprColor(avgIpr) }}
+            >
+              {avgIpr.toFixed(0)}%
+            </span>
+          </p>
+        </div>
+        <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--success))" }} />
+            <span>≥80%</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--warning))" }} />
+            <span>70-79%</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--critical))" }} />
+            <span>&lt;70%</span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-4 pb-6">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+          {pieData.map((entry, index) => (
+            <RadialBar
+              key={entry.materia}
+              materia={entry.materia}
+              ipr={entry.ipr}
+              color={entry.color}
+              index={index}
+              total={pieData.length}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
