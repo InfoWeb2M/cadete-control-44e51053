@@ -62,7 +62,7 @@ export default function CountdownPage() {
   }, []);
 
   const totalDaysOriginal = Math.ceil(
-    (TARGET_DATE.getTime() - new Date("2025-01-01").getTime()) / (1000 * 60 * 60 * 24)
+    (TARGET_DATE.getTime() - new Date("2025-02-04").getTime()) / (1000 * 60 * 60 * 24)
   );
   const daysElapsed = totalDaysOriginal - timeLeft.days;
   const progress = Math.min((daysElapsed / totalDaysOriginal) * 100, 100);
@@ -123,7 +123,7 @@ export default function CountdownPage() {
         </div>
 
         {/* Countdown units */}
-        <div className="flex gap-3 sm:gap-5 mb-10 z-10">
+        <div className="flex gap-0 md:gap-5 mb-10 z-10">
           <TimeUnit value={timeLeft.days} label="Dias" />
           <div className="flex flex-col items-center justify-center h-28 sm:h-36">
             <span className="text-2xl text-pink-500/50 font-bold animate-pulse">:</span>

@@ -10,7 +10,7 @@ import type { SessaoEstudoCreate } from "@/lib/types";
 export default function SessionPage() {
   const [materiaId, setMateriaId] = useState("");
   const [assuntoId, setAssuntoId] = useState("");
-  const [tipo, setTipo] = useState<"TEORIA" | "QUESTOES" | "REVISAO">("TEORIA");
+  const [tipo, setTipo] = useState<"TEORIA" | "REVISAO">("TEORIA");
   const [minutos, setMinutos] = useState("");
   const [foco, setFoco] = useState(3);
   const [energia, setEnergia] = useState(3);
@@ -64,7 +64,7 @@ export default function SessionPage() {
 
             <FieldGroup label="Tipo de Sessão">
               <div className="flex gap-2">
-                {(["TEORIA", "QUESTOES", "REVISAO"] as const).map((t) => (
+                {(["TEORIA", "REVISAO"] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
@@ -73,7 +73,7 @@ export default function SessionPage() {
                       tipo === t ? "bg-primary text-primary-foreground border-primary" : "bg-secondary text-secondary-foreground border-border hover:bg-muted"
                     }`}
                   >
-                    {t === "QUESTOES" ? "Questões" : t === "REVISAO" ? "Revisão" : "Teoria"}
+                    {t === "REVISAO" ? "Revisão" : "Teoria"}
                   </button>
                 ))}
               </div>

@@ -127,7 +127,7 @@ export function MediaRedacoesCard() {
 export function ProgressoRedacoesChart() {
   const { data: redacoes } = useRedacoes();
 
-  if (!redacoes || redacoes.length < 2) return null;
+  if (!redacoes || redacoes.length < 1) return null;
 
   const chartData = [...redacoes]
     .reverse()

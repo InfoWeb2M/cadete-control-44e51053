@@ -22,23 +22,82 @@ let persisted: TimerState = {
 };
 
 // ── Sound helper ──────────────────────────────────────────────────
-function playAlarm() {
+/*ALARME 1 - n sei dizer kkkk*/
+/* function playAlarm() {
   const ctx = new AudioContext();
-  const playBeep = (time: number, freq: number, dur: number) => {
+
+  const playTone = (time: number, freq: number, dur: number) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.15, time);
+
+    osc.type = "sawtooth"; // mais agressivo que square
+    osc.frequency.setValueAtTime(freq, time);
+
+    gain.gain.setValueAtTime(0.2, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
-    osc.connect(gain).connect(ctx.destination);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
     osc.start(time);
     osc.stop(time + dur);
   };
-  for (let i = 0; i < 4; i++) {
-    playBeep(ctx.currentTime + i * 0.35, 880, 0.25);
+
+  for (let i = 0; i < 8; i++) {
+    const freq = i % 2 === 0 ? 700 : 1000; // alterna os tons
+    playTone(ctx.currentTime + i * 0.25, freq, 0.2);
   }
-}
+} */
+
+/*ALARME 2 - pi pi pi irritante*/
+ function playAlarm() {
+  const ctx = new AudioContext();
+
+  const beep = (time: number) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "square";
+    osc.frequency.value = 1200;
+
+    gain.gain.setValueAtTime(0.25, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+
+    osc.connect(gain).connect(ctx.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.08);
+  };
+
+  for (let i = 0; i < 12; i++) {
+    beep(ctx.currentTime + i * 0.12);
+  }
+} 
+
+/*ALARME 3 - alarme de prédio */
+/* function playAlarm() {
+  const ctx = new AudioContext();
+
+  const tone = (time: number, freq: number) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+
+    gain.gain.setValueAtTime(0.25, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+
+    osc.connect(gain).connect(ctx.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.3);
+  };
+
+  for (let i = 0; i < 6; i++) {
+    tone(ctx.currentTime + i * 0.35, i % 2 ? 900 : 500);
+  }
+} */
 
 // ── Circular progress component ──────────────────────────────────
 function CircularProgress({
@@ -279,6 +338,7 @@ export default function TimerPage() {
     mode === "timer" ? fmtTimer(totalMs - elapsed) : fmtStopwatch(elapsed);
 
   const presets = [
+    { label: "0:30", sec: 30 },
     { label: "1:00", sec: 60 },
     { label: "5:00", sec: 300 },
     { label: "10:00", sec: 600 },
