@@ -95,7 +95,6 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
                     filter: ipr >= 80 && isVisible ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
                   }}
                 />
-                />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-lg font-mono font-bold text-foreground">
