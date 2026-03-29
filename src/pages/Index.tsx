@@ -148,6 +148,7 @@ export default function Dashboard() {
                 <KpiCard
                     title="Horas Líquidas"
                     value={`${d.horas_liquidas}h`}
+                    meta={`${metas.horas}h`}
                     icon={Clock}
                     variant={statusToVariant(d.status_horas)}
                     subtitle={d.status_horas}
@@ -155,6 +156,7 @@ export default function Dashboard() {
                 <KpiCard
                     title="Questões Resolvidas"
                     value={d.total_questoes}
+                    meta={metas.questoes}
                     icon={ListChecks}
                     variant={statusToVariant(d.status_questoes)}
                     subtitle={d.status_questoes}
