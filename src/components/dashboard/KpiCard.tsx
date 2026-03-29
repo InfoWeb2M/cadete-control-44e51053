@@ -43,7 +43,6 @@ export default function KpiCard({ title, value, meta, subtitle, icon: Icon, vari
               </span>
             )}
           </div>
-          </p>
           {subtitle && (
             <p className={`mt-1 text-xs ${iconVariantStyles[variant]}`}>
               {subtitle}
