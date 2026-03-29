@@ -94,10 +94,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
                     transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     filter: ipr >= 80 && isVisible ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
                   }}
-                  className="transition-all duration-1000 ease-out"
-                  style={{
-                    filter: ipr >= 80 ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
-                  }}
+                />
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
