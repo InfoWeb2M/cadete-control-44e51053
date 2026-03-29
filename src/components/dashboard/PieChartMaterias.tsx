@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const COLORS = [
   "hsl(var(--success))",
