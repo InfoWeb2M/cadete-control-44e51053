@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const COLORS = [
   "hsl(var(--success))",
@@ -35,13 +35,40 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(Math.max(ipr, 0), 100);
-  const offset = circumference - (progress / 100) * circumference;
+  const targetOffset = circumference - (progress / 100) * circumference;
+
+  const [animatedOffset, setAnimatedOffset] = useState(circumference);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isVisible) {
+      const timeout = setTimeout(() => setAnimatedOffset(targetOffset), 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [isVisible, targetOffset]);
 
   return (
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex flex-col items-center gap-2 p-3 cursor-pointer">
+          <div ref={ref} className="flex flex-col items-center gap-2 p-3 cursor-pointer" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease-out, transform 0.6s ease-out' }}>
             <div className="relative" style={{ width: size, height: size }}>
               <svg width={size} height={size} className="-rotate-90" overflow="visible">
                 <circle
@@ -62,10 +89,10 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
                   strokeWidth={strokeWidth}
                   strokeLinecap="round"
                   strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                  className="transition-all duration-1000 ease-out"
+                  strokeDashoffset={animatedOffset}
                   style={{
-                    filter: ipr >= 80 ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
+                    transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    filter: ipr >= 80 && isVisible ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
                   }}
                 />
               </svg>
