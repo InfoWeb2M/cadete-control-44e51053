@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
 import { useMemo } from "react";
 
@@ -19,19 +20,16 @@ function getIprColor(ipr: number): string {
   return "hsl(var(--critical))";
 }
 
-interface PieChartMateriasProps {
-  data: MateriaPerformance[];
-}
-
 interface RadialBarProps {
   materia: string;
   ipr: number;
   color: string;
-  index: number;
-  total: number;
+  totalQuestoes?: number;
+  totalAcertos?: number;
+  horasEstudo?: number;
 }
 
-function RadialBar({ materia, ipr, color, index, total }: RadialBarProps) {
+function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: RadialBarProps) {
   const size = 120;
   const strokeWidth = 10;
   const radius = (size - strokeWidth) / 2;
@@ -40,56 +38,91 @@ function RadialBar({ materia, ipr, color, index, total }: RadialBarProps) {
   const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center gap-2 p-3">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
-          {/* Background track */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="hsl(var(--muted))"
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-          />
-          {/* Progress arc */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={getIprColor(ipr)}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="transition-all duration-1000 ease-out"
-            style={{
-              filter: ipr >= 80 ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
-            }}
-          />
-        </svg>
-        {/* Center text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-mono font-bold text-foreground">
-            {ipr.toFixed(0)}%
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col items-center gap-0.5 max-w-[120px]">
-        <span className="text-xs font-semibold text-foreground truncate max-w-full text-center">
-          {materia}
-        </span>
-        <span
-          className="text-[10px] font-mono uppercase tracking-wider"
-          style={{ color: getIprColor(ipr) }}
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex flex-col items-center gap-2 p-3 cursor-pointer">
+            <div className="relative" style={{ width: size, height: size }}>
+              <svg width={size} height={size} className="-rotate-90">
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  fill="none"
+                  stroke="hsl(var(--muted))"
+                  strokeWidth={strokeWidth}
+                  strokeLinecap="round"
+                />
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  fill="none"
+                  stroke={getIprColor(ipr)}
+                  strokeWidth={strokeWidth}
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                  className="transition-all duration-1000 ease-out"
+                  style={{
+                    filter: ipr >= 80 ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
+                  }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-lg font-mono font-bold text-foreground">
+                  {ipr.toFixed(0)}%
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-0.5 max-w-[120px]">
+              <span className="text-xs font-semibold text-foreground truncate max-w-full text-center">
+                {materia}
+              </span>
+              <span
+                className="text-[10px] font-mono uppercase tracking-wider"
+                style={{ color: getIprColor(ipr) }}
+              >
+                {ipr >= 80 ? "Excelente" : ipr >= 70 ? "Operacional" : "Crítico"}
+              </span>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className="bg-card border border-border p-3 shadow-lg"
         >
-          {ipr >= 80 ? "Excelente" : ipr >= 70 ? "Operacional" : "Crítico"}
-        </span>
-      </div>
-    </div>
+          <div className="flex flex-col gap-1.5 min-w-[160px]">
+            <p className="text-xs font-semibold text-foreground tracking-wide uppercase border-b border-border pb-1.5 mb-0.5">
+              {materia}
+            </p>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Questões</span>
+              <span className="font-mono font-semibold text-foreground">
+                {totalAcertos ?? "—"} / {totalQuestoes ?? "—"}
+              </span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Tempo de estudo</span>
+              <span className="font-mono font-semibold text-foreground">
+                {horasEstudo != null ? `${horasEstudo}h` : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">IPR</span>
+              <span className="font-mono font-bold" style={{ color: getIprColor(ipr) }}>
+                {ipr.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
+}
+
+interface PieChartMateriasProps {
+  data: MateriaPerformance[];
 }
 
 export default function PieChartMaterias({ data }: PieChartMateriasProps) {
@@ -99,6 +132,9 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
         materia: item.materia.nome,
         ipr: Math.max(item.ipr, 0),
         color: COLORS[index % COLORS.length],
+        totalQuestoes: item.total_questoes,
+        totalAcertos: item.total_acertos,
+        horasEstudo: item.horas_estudo,
       })),
     [data]
   );
@@ -157,14 +193,15 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
       </CardHeader>
       <CardContent className="pt-4 pb-6">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-          {pieData.map((entry, index) => (
+          {pieData.map((entry) => (
             <RadialBar
               key={entry.materia}
               materia={entry.materia}
               ipr={entry.ipr}
               color={entry.color}
-              index={index}
-              total={pieData.length}
+              totalQuestoes={entry.totalQuestoes}
+              totalAcertos={entry.totalAcertos}
+              horasEstudo={entry.horasEstudo}
             />
           ))}
         </div>
