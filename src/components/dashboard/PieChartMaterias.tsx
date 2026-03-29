@@ -97,7 +97,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
               {materia}
             </p>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Questões</span>
+              <span className="text-muted-foreground">Acertos</span>
               <span className="font-mono font-semibold text-foreground">
                 {totalAcertos ?? "—"}<span className="text-muted-foreground/60"> / {totalQuestoes ?? "—"}</span>
               </span>
