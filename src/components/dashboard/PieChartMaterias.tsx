@@ -43,7 +43,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
         <TooltipTrigger asChild>
           <div className="flex flex-col items-center gap-2 p-3 cursor-pointer">
             <div className="relative" style={{ width: size, height: size }}>
-              <svg width={size} height={size} className="-rotate-90">
+              <svg width={size} height={size} className="-rotate-90" overflow="visible">
                 <circle
                   cx={size / 2}
                   cy={size / 2}
@@ -97,9 +97,9 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
               {materia}
             </p>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Questões</span>
+              <span className="text-muted-foreground">Acertos</span>
               <span className="font-mono font-semibold text-foreground">
-                {totalAcertos ?? "—"} / {totalQuestoes ?? "—"}
+                {totalAcertos ?? "—"}<span className="text-muted-foreground/60"> / {totalQuestoes ?? "—"}</span>
               </span>
             </div>
             <div className="flex justify-between text-xs">
