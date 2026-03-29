@@ -47,6 +47,12 @@ export default function Dashboard() {
 
     const d = dashboard!;
 
+    const metas = periodo === "semana"
+        ? { horas: 22, questoes: 350 }
+        : periodo === "mes"
+            ? { horas: 88, questoes: 1400 }
+            : { horas: 1056, questoes: 16800 };
+
     // Chart data from API responses (no recalculation)
     const agora = new Date();
 
