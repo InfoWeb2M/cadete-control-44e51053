@@ -29,8 +29,8 @@ export default function CronogramaPage() {
         </div>
       </div>
 
-      {/* MOBILE: seletor de dias em chips */}
-      <div className="lg:hidden flex gap-1.5 mb-4 overflow-x-auto pb-2 -mx-1 px-1">
+      {/* MOBILE/TABLET: seletor de dias em chips */}
+      <div className="xl:hidden flex gap-1.5 mb-4 overflow-x-auto pb-2 -mx-1 px-1">
         {DIAS_ORDEM.map((d) => {
           const isToday = d === diaHoje;
           const isActive = d === diaSelecionado;
@@ -53,13 +53,13 @@ export default function CronogramaPage() {
         })}
       </div>
 
-      {/* MOBILE: lista do dia selecionado */}
-      <div className="lg:hidden space-y-2 animate-fade-in">
+      {/* MOBILE/TABLET: lista do dia selecionado */}
+      <div className="xl:hidden space-y-2 animate-fade-in">
         <DayList dia={diaSelecionado} now={now} isToday={diaSelecionado === diaHoje} />
       </div>
 
-      {/* DESKTOP: grid semanal */}
-      <div className="hidden lg:grid grid-cols-7 gap-3">
+      {/* DESKTOP (xl+): grid semanal */}
+      <div className="hidden xl:grid grid-cols-7 gap-3">
         {DIAS_ORDEM.map((d) => {
           const isToday = d === diaHoje;
           const items = CRONOGRAMA[d];
