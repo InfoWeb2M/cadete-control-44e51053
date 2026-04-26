@@ -10,6 +10,7 @@ import { ErrorState, LoadingState } from "@/components/ui/states";
 import { useAssuntos } from "@/hooks/useConfiguracoes";
 import { useBlocos, useDashboard, useMateriasPerformance, useSimulados } from "@/hooks/usePerformance";
 import type { Periodo } from "@/lib/types";
+import { formatarHoras } from "@/lib/utils";
 import { Clock, ListChecks, Percent, TrendingUp } from "lucide-react";
 import { useState } from "react";
 
@@ -78,7 +79,7 @@ export default function Dashboard() {
 
     const blocosMateria = blocosFiltrados.filter(b => !materiaId || b.materia_id === materiaId);
 
-    const precisionData = blocosMateria.slice(-10).map((b, i) => ({
+    const precisionData = blocosMateria.reverse().map((b, i) => ({
         label: `B${i + 1}`,
         value: b.percentual_acerto,
     }));
@@ -139,7 +140,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 stagger-children">
                 <KpiCard
                     title="Horas Líquidas"
-                    value={`${d.horas_liquidas}h`}
+                    value={formatarHoras(d.horas_liquidas)}
                     meta={`${metas.horas}h`}
                     icon={Clock}
                     variant={statusToVariant(d.status_horas)}

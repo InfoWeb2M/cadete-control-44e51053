@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
+import { formatarHoras } from "@/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const COLORS = [
@@ -132,7 +133,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Tempo de estudo</span>
               <span className="font-mono font-semibold text-foreground">
-                {horasEstudo != null ? `${horasEstudo}h` : "—"}
+                {horasEstudo != null ? `${formatarHoras(horasEstudo)}` : "—"}
               </span>
             </div>
             <div className="flex justify-between text-xs">
