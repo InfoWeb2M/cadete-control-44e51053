@@ -24,11 +24,7 @@ import type {
     SimuladoSemanalResponse,
 } from "./types";
 
-// =============================================================================
-// 🟢 MOCK TOGGLE
-// Defina como `false` para voltar a usar a API real (e remova src/lib/mocks.ts).
-// =============================================================================
-export const USE_MOCKS = true;
+export const USE_MOCKS = false;
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
