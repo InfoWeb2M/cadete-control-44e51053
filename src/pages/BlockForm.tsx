@@ -99,7 +99,7 @@ export default function BlockPage() {
               <input type="range" min={1} max={5} value={confianca} onChange={(e) => setConfianca(+e.target.value)} className="w-full accent-accent" />
             </FieldGroup>
             <button type="submit" disabled={mutation.isPending}
-              className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold tracking-wider uppercase text-sm hover:bg-olive-light transition-all duration-200 disabled:opacity-50 active:scale-[0.98]">
+              className="btn-tactical">
               {mutation.isPending ? "Registrando..." : "Registrar Bloco"}
             </button>
           </form>
