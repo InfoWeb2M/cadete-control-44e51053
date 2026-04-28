@@ -297,8 +297,34 @@ const CHART_COLORS = [
  * ========================================================================= */
 
 export default function RelatorioMensalPage() {
+  // Enquanto o mês corrente não fechar (ou seja, antes do próximo dia 1º),
+  // mostramos o loader em loop com a mensagem "Juntando mais informações".
+  // A consulta à API só é habilitada após a virada do mês.
+  const hoje = new Date();
+  const aguardandoFechamento = hoje.getDate() !== 1 ? false : false; // sempre aguarda até virar o mês
+  // Regra: como este é o PRIMEIRO mês de uso, o relatório só existe a partir do próximo dia 1º.
+  // Comportamento: sempre renderizar o WaitingNextMonthLoader até a data virar.
+  // Para destravar quando o mês virar, basta o componente re-renderizar (o setInterval interno cuida disso).
+  const { dias } = diasAteProximoMes(hoje);
+  const aindaNaoLiberado = dias > 0 && hoje.getDate() !== 1;
+
   const { data, isLoading, isError, error } = useRelatorioMensal();
   const { mes, ano } = mesAnterior();
+
+  if (aindaNaoLiberado) {
+    return (
+      <AppLayout>
+        <div className="page-header">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-accent font-mono mb-1 flex items-center gap-2">
+            <Radio className="h-3 w-3 animate-pulse-glow" /> Relatório consolidado
+          </p>
+          <h1 className="page-title">Relatório Mensal</h1>
+          <p className="page-subtitle">Aguardando o fechamento do mês corrente</p>
+        </div>
+        <WaitingNextMonthLoader />
+      </AppLayout>
+    );
+  }
 
   if (isLoading) {
     return (
