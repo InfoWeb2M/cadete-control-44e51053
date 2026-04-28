@@ -90,6 +90,114 @@ function GatheringLoader() {
 }
 
 /* =========================================================================
+ * WAITING LOOP — exibido até virar o mês (1º dia do próximo mês)
+ * ========================================================================= */
+
+const WAITING_MESSAGES = [
+  "Juntando mais informações",
+  "Coletando sessões em tempo real",
+  "Monitorando blocos de questões",
+  "Acumulando dados de simulados",
+  "Registrando redações enviadas",
+  "Calculando padrões de consistência",
+  "Aguardando fechamento do mês",
+  "Preparando o relatório consolidado",
+];
+
+function diasAteProximoMes(now = new Date()) {
+  const proximo = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+  const ms = proximo.getTime() - now.getTime();
+  const dias = Math.ceil(ms / (1000 * 60 * 60 * 24));
+  return { dias, dataAlvo: proximo };
+}
+
+function WaitingNextMonthLoader() {
+  const [idx, setIdx] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % WAITING_MESSAGES.length), 1800);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    const t = setInterval(() => setTick(x => x + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const { dias, dataAlvo } = diasAteProximoMes();
+  void tick; // força re-render periódico
+  const proxMesNome = NOMES_MES[dataAlvo.getMonth()];
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center animate-fade-in">
+      <div className="w-full max-w-lg mx-auto text-center px-4">
+        {/* Orbital animation */}
+        <div className="relative inline-flex mb-8 h-28 w-28 items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-accent/20 blur-3xl animate-pulse" />
+          <div className="absolute inset-0 rounded-full border border-accent/20 animate-[spin_8s_linear_infinite]" />
+          <div className="absolute inset-2 rounded-full border border-accent/30 border-dashed animate-[spin_12s_linear_infinite_reverse]" />
+          <div className="absolute inset-5 rounded-full border border-accent/40 animate-[spin_5s_linear_infinite]" />
+          <div className="relative p-4 rounded-full border border-accent/60 bg-card shadow-[0_0_30px_hsl(var(--accent)/0.3)]">
+            <Database className="h-7 w-7 text-accent animate-pulse-glow" />
+          </div>
+          {/* Satellite dot */}
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_hsl(var(--accent))] animate-[spin_3s_linear_infinite] origin-[50%_56px]" />
+        </div>
+
+        <p className="text-[10px] tracking-[0.35em] uppercase text-accent font-mono mb-2 flex items-center justify-center gap-2">
+          <Radio className="h-3 w-3 animate-pulse" /> Coletando dados em tempo real
+        </p>
+
+        <h2 className="text-xl sm:text-2xl font-bold tracking-[0.15em] uppercase text-foreground mb-2 min-h-[2em] flex items-center justify-center">
+          <span key={idx} className="animate-fade-in inline-flex items-center gap-1">
+            {WAITING_MESSAGES[idx]}
+            <span className="inline-flex w-6 justify-start">
+              <span className="animate-[blink_1.4s_infinite]">.</span>
+              <span className="animate-[blink_1.4s_infinite_0.2s]">.</span>
+              <span className="animate-[blink_1.4s_infinite_0.4s]">.</span>
+            </span>
+          </span>
+        </h2>
+
+        <p className="text-xs text-muted-foreground font-mono mb-6">
+          O primeiro relatório mensal será liberado em{" "}
+          <span className="text-accent font-bold">
+            01/{String(dataAlvo.getMonth() + 1).padStart(2, "0")}/{dataAlvo.getFullYear()}
+          </span>
+        </p>
+
+        {/* Countdown */}
+        <div className="grid grid-cols-3 gap-3 mb-6 max-w-xs mx-auto">
+          <div className="p-3 rounded-lg border border-accent/30 bg-card/80 backdrop-blur-sm">
+            <p className="text-2xl font-bold font-mono text-accent">{dias}</p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground font-mono mt-1">
+              {dias === 1 ? "Dia" : "Dias"}
+            </p>
+          </div>
+          <div className="p-3 rounded-lg border border-border bg-card/80 backdrop-blur-sm">
+            <p className="text-2xl font-bold font-mono text-foreground capitalize">{proxMesNome.slice(0, 3)}</p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground font-mono mt-1">Mês alvo</p>
+          </div>
+          <div className="p-3 rounded-lg border border-border bg-card/80 backdrop-blur-sm">
+            <p className="text-2xl font-bold font-mono text-foreground">{dataAlvo.getFullYear()}</p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground font-mono mt-1">Ano</p>
+          </div>
+        </div>
+
+        {/* Linha de progresso indeterminada */}
+        <div className="relative h-1 w-full bg-muted/30 rounded-full overflow-hidden mb-3">
+          <div className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-accent to-transparent animate-[shimmer_2s_linear_infinite]" />
+        </div>
+
+        <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground/70 font-mono">
+          Sistema ativo · Aguardando virada do mês
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
  * UI HELPERS
  * ========================================================================= */
 
