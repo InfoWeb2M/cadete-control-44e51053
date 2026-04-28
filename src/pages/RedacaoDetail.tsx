@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState } from "@/components/ui/states";
 import { useRedacao } from "@/hooks/useRedacoes";
 import { getCompetenciaNome } from "@/lib/types";
+import { getRedacaoStatusInfo, toListaTextos } from "@/lib/redacaoStatus";
 import { format } from "date-fns";
 
 function competenciaColor(nota: number): string {
@@ -37,6 +38,10 @@ export default function RedacaoDetail() {
     r.status.includes("Excelente") || r.status.includes("Bom") ? "text-success"
     : r.status.includes("Regular") ? "text-warning"
     : "text-critical";
+
+  const s = getRedacaoStatusInfo(r.status);
+  const diagnosticos = toListaTextos(r.diagnostico);
+  const recomendacoes = toListaTextos(r.recomendacao);
 
   return (
     <AppLayout>
