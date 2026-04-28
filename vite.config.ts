@@ -11,7 +11,6 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
-
     proxy: {
       "/api": {
         target: "http://api:8000",
@@ -23,56 +22,62 @@ export default defineConfig(({ mode }) => ({
 
   plugins: [
     react(),
+
     mode === "development" && componentTagger(),
+
     VitePWA({
       registerType: "autoUpdate",
+      strategies: "generateSW",
+
       devOptions: {
         enabled: false,
       },
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "robots.txt"],
+
+      includeAssets: [
+        "favicon.ico",
+        "apple-touch-icon.png",
+        "robots.txt",
+      ],
+
       manifest: {
         name: "Provectus - Sistema de Ensino",
         short_name: "Provectus",
-        description: "Provectus - Sistema de controle estatístico para EsPCEx",
+        description:
+          "Provectus - Sistema de controle estatístico para EsPCEx",
         theme_color: "#1a2419",
         background_color: "#0d130c",
-        display: "standalone",
+        display: "fullscreen",
         orientation: "portrait",
         scope: "/",
         start_url: "/",
         lang: "pt-BR",
         icons: [
           {
-            src: "/pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
+            src: "/favicon.ico",
+            sizes: "256x256",
+            type: "image/x-icon",
             purpose: "any",
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
           },
         ],
       },
+
       workbox: {
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         cleanupOutdatedCaches: true,
+
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+
+        navigateFallbackDenylist: [/^\/api/],
+
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
             options: {
               cacheName: "google-fonts-cache",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
             },
           },
           {
@@ -80,7 +85,10 @@ export default defineConfig(({ mode }) => ({
             handler: "CacheFirst",
             options: {
               cacheName: "gstatic-fonts-cache",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
             },
           },
         ],

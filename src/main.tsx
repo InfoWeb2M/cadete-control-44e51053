@@ -16,8 +16,7 @@ const isInIframe = (() => {
 const isPreviewHost =
   window.location.hostname.includes("id-preview--") ||
   window.location.hostname.includes("lovableproject.com") ||
-  window.location.hostname.includes("lovable.app") &&
-    window.location.hostname.startsWith("id-preview--");
+  window.location.hostname.includes("lovable.app");
 
 if (isInIframe || isPreviewHost) {
   // Unregister any existing service workers in preview/iframe contexts
