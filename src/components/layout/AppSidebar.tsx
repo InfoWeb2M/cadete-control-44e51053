@@ -1,6 +1,7 @@
 import {
     BookOpen,
     CalendarDays,
+    FileBarChart,
     Heart,
     History,
     LayoutDashboard,
@@ -24,7 +25,8 @@ const navItems = [
     { to: "/cronograma", icon: CalendarDays, label: "Cronograma", code: "06" },
     { to: "/timer", icon: Timer, label: "Timer", code: "07" },
     { to: "/historico", icon: History, label: "Histórico", code: "08" },
-    { to: "/countdown", icon: Heart, label: "Contagem Regressiva", code: "09" },
+    { to: "/relatorio-mensal", icon: FileBarChart, label: "Relatório Mensal", code: "09" },
+    { to: "/countdown", icon: Heart, label: "Contagem Regressiva", code: "10" },
 ];
 
 export default function AppSidebar() {

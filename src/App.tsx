@@ -15,6 +15,9 @@ import NotFound from "./pages/NotFound";
 import CountdownPage from "./pages/CountdownPage";
 import TimerPage from "./pages/TimerPage";
 import CronogramaPage from "./pages/CronogramaPage";
+import RelatorioMensalPage from "./pages/RelatorioMensalPage";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,7 @@ const App = () => (
           <Route path="/redacoes/:id" element={<RedacaoDetail />} />
           <Route path="/countdown" element={<CountdownPage />} />
           <Route path="/cronograma" element={<CronogramaPage />} />
+          <Route path="/relatorio-mensal" element={<RelatorioMensalPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
