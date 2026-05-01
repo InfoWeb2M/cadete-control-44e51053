@@ -352,8 +352,8 @@ export default function RelatorioMensalPage() {
   const sessoes = obj(r.sessoes || r.sessoes_estudo);
   const blocos = obj(r.blocos || r.blocos_questoes);
   const erros = obj(r.analise_erros || r.erros);
-  const simulados = obj(r.simulados_semanais || r.simulados);
-  const provas = obj(r.provas_oficiais || r.provas);
+  const simulados = r.simulados_semanais ?? r.simulados ?? [];
+  const provas = r.provas_oficiais ?? r.provas ?? [];
   const redacoes = obj(r.redacoes);
   const mental = obj(r.estado_mental);
   const comparativo = obj(r.comparativo_mes_anterior || r.comparativo);
@@ -365,58 +365,84 @@ export default function RelatorioMensalPage() {
   const recomendacoes = arr<any>(r.recomendacoes_estrategicas || r.recomendacoes);
 
   // === Derived charts ===
-  const distSessoesData = Object.entries(obj(sessoes.distribuicao_por_tipo || sessoes.por_tipo)).map(([tipo, v]: any) => ({
-    tipo,
-    minutos: num(v?.minutos ?? v?.tempo_total ?? v?.total_minutos),
-    quantidade: num(v?.quantidade ?? v?.total),
-    foco: num(v?.foco_medio),
+  // sessoes.por_tipo é array no backend
+  const distSessoesData = arr<any>(sessoes.por_tipo ?? sessoes.distribuicao_por_tipo).map(v => ({
+    tipo: v.tipo_sessao ?? v.tipo ?? "—",
+    minutos: num(v.total_minutos ?? v.minutos ?? v.tempo_total),
+    quantidade: num(v.quantidade ?? v.total),
+    foco: num(v.media_foco ?? v.foco_medio),
+    energia: num(v.media_energia),
+    pct: num(v.percentual_do_total ?? v.percentual),
   }));
 
-  const sessoesPorMateria = arr<any>(sessoes.distribuicao_por_materia || sessoes.por_materia).map(m => ({
-    materia: m.materia ?? m.nome ?? "—",
-    tempo: num(m.tempo_minutos ?? m.minutos ?? m.tempo),
-    pct: num(m.percentual ?? m.pct),
+  const sessoesPorMateria = arr<any>(sessoes.por_materia ?? sessoes.distribuicao_por_materia).map(m => ({
+    materia: m.materia_nome ?? m.materia ?? m.nome ?? "—",
+    tempo: num(m.total_minutos ?? m.tempo_minutos ?? m.minutos ?? m.tempo),
+    pct: num(m.percentual_tempo ?? m.percentual ?? m.pct),
+    sessoes: num(m.total_sessoes),
+    foco: num(m.media_foco),
   }));
 
-  const blocosPorMateria = arr<any>(blocos.por_materia || blocos.desempenho_por_materia).map(m => ({
-    materia: m.materia ?? m.nome ?? "—",
+  const blocosPorMateria = arr<any>(blocos.por_materia ?? blocos.desempenho_por_materia).map(m => ({
+    materia: m.materia_nome ?? m.materia ?? m.nome ?? "—",
     ipr: num(m.ipr_medio ?? m.ipr),
     questoes: num(m.total_questoes ?? m.questoes),
-    acertos: num(m.acertos),
+    acertos: num(m.total_acertos ?? m.acertos),
+    pctAcerto: num(m.percentual_acerto),
   }));
 
-  const blocosPorAssunto = arr<any>(blocos.por_assunto || blocos.desempenho_por_assunto);
-  const distDificuldade = obj(blocos.distribuicao_por_dificuldade || blocos.dificuldade);
-  const dificuldadeData = Object.entries(distDificuldade).map(([k, v]) => ({
-    dificuldade: `Nível ${k}`,
-    total: num(v),
+  const blocosPorAssunto = arr<any>(blocos.por_assunto ?? blocos.desempenho_por_assunto);
+
+  // por_dificuldade é array no backend
+  const dificuldadeData = arr<any>(blocos.por_dificuldade ?? blocos.distribuicao_por_dificuldade).map(d => ({
+    dificuldade: `Nível ${d.dificuldade ?? "?"}`,
+    total: num(d.total_questoes ?? d.total),
+    acertos: num(d.total_acertos),
+    pct: num(d.percentual_acerto),
+    ipr: num(d.ipr_medio),
   }));
 
-  const errosPorTipo = obj(erros.por_tipo || erros.tipos);
-  const errosData = Object.entries(errosPorTipo).map(([tipo, total]) => ({
-    tipo,
-    total: num(total),
+  // erros.tipos_mais_comuns é array de objetos
+  const errosData = arr<any>(erros.tipos_mais_comuns ?? erros.todos_os_tipos).map((e: any) => ({
+    tipo: e.tipo ?? e.nome ?? String(e),
+    total: num(e.total ?? e.quantidade ?? e.count),
   }));
+  const totalErros = num(erros.total_erros_registrados ?? erros.total ?? erros.total_erros);
+  const tendenciaErros = String(erros.tendencia_erro ?? erros.tendencia ?? "");
 
-  const simuladosLista = arr<any>(simulados.lista || simulados.detalhamento || simulados.itens);
+  const simuladosLista = Array.isArray(simulados)
+    ? (simulados as any[])
+    : arr<any>((simulados as any).lista ?? (simulados as any).detalhamento ?? (simulados as any).itens);
   const evolucaoSimulados = simuladosLista.map((s, i) => ({
-    label: s.label ?? `S${i + 1}`,
+    label: s.label ?? (s.numero_semana ? `S${s.numero_semana}` : `S${i + 1}`),
     pct: num(s.percentual_acerto ?? s.percentual),
-    ipr: num(s.ipr),
+    ipr: num(s.ipr ?? s.ipr_medio),
   }));
 
-  const provasLista = arr<any>(provas.lista || provas.itens);
-  const redacoesLista = arr<any>(redacoes.lista || redacoes.itens);
-  const evolucaoRedacoes = arr<any>(redacoes.evolucao || redacoes.evolucao_nota).map((p, i) => ({
+  const provasLista = Array.isArray(provas)
+    ? (provas as any[])
+    : arr<any>((provas as any).lista ?? (provas as any).itens);
+
+  const redacoesLista = arr<any>(redacoes.redacoes ?? redacoes.lista ?? redacoes.itens);
+  const evolucaoRedacoes = arr<any>(redacoes.evolucao_nota ?? redacoes.evolucao).map((p, i) => ({
     label: p.data ? new Date(p.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : `R${i + 1}`,
     nota: num(p.nota ?? p.nota_total),
   }));
 
-  const competenciasMedia = obj(redacoes.media_por_competencia || redacoes.competencias);
-  const radarComp = Object.entries(competenciasMedia).map(([k, v]) => ({
-    comp: `C${String(k).replace(/\D/g, "")}`,
-    nota: num(v),
-  }));
+  // Construir radar a partir de media_competencia1..5 OU media_por_competencia
+  let radarComp: { comp: string; nota: number }[] = [];
+  const mediaPorCompObj = obj(redacoes.media_por_competencia ?? redacoes.competencias);
+  if (Object.keys(mediaPorCompObj).length > 0) {
+    radarComp = Object.entries(mediaPorCompObj).map(([k, v]) => ({
+      comp: `C${String(k).replace(/\D/g, "")}`,
+      nota: num(v),
+    }));
+  } else {
+    for (let i = 1; i <= 5; i++) {
+      const v = redacoes[`media_competencia${i}`];
+      if (typeof v === "number") radarComp.push({ comp: `C${i}`, nota: v });
+    }
+  }
 
   const isEmpty = Object.keys(r).length === 0;
 
@@ -457,29 +483,29 @@ export default function RelatorioMensalPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <MetricCard
             label="Horas líquidas"
-            value={formatarHoras(num(resumo.horas_totais_liquidas ?? resumo.horas_liquidas))}
+            value={formatarHoras(num(resumo.horas_totais ?? resumo.horas_totais_liquidas ?? resumo.horas_liquidas))}
             icon={Clock}
-            hint={<TrendPill delta={num(comparativo?.horas?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.horas?.variacao_percentual ?? comparativo?.horas?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Questões"
-            value={num(resumo.total_questoes).toLocaleString("pt-BR")}
+            value={num(resumo.total_questoes_respondidas ?? resumo.total_questoes).toLocaleString("pt-BR")}
             icon={ListChecks}
-            hint={<TrendPill delta={num(comparativo?.questoes?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.questoes?.variacao_percentual ?? comparativo?.questoes?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Acertos"
-            value={`${num(resumo.percentual_medio_acerto ?? resumo.percentual_acerto).toFixed(1)}%`}
+            value={`${num(resumo.percentual_acerto_geral ?? resumo.percentual_medio_acerto ?? resumo.percentual_acerto).toFixed(1)}%`}
             icon={Percent}
-            variant={num(resumo.percentual_medio_acerto) >= 70 ? "success" : "warning"}
-            hint={<TrendPill delta={num(comparativo?.percentual_acerto?.variacao_pct, NaN)} suffix="%" />}
+            variant={num(resumo.percentual_acerto_geral ?? resumo.percentual_medio_acerto) >= 70 ? "success" : "warning"}
+            hint={<TrendPill delta={num(comparativo?.percentual_acerto?.variacao_percentual ?? comparativo?.percentual_acerto?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="IPR Geral"
             value={`${num(resumo.ipr_geral).toFixed(1)}%`}
             icon={Target}
             variant={num(resumo.ipr_geral) >= 85 ? "success" : num(resumo.ipr_geral) >= 70 ? "warning" : "critical"}
-            hint={<TrendPill delta={num(comparativo?.ipr?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.ipr?.variacao_percentual ?? comparativo?.ipr?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Questões/dia"
@@ -488,9 +514,9 @@ export default function RelatorioMensalPage() {
           />
           <MetricCard
             label="Dias estudados"
-            value={`${num(resumo.percentual_dias_estudo ?? (periodo.dias_estudados / Math.max(1, periodo.dias_no_mes)) * 100).toFixed(0)}%`}
+            value={`${num(resumo.percentual_dias_estudados ?? resumo.percentual_dias_estudo ?? (periodo.dias_estudados / Math.max(1, periodo.dias_no_mes)) * 100).toFixed(0)}%`}
             icon={Flame}
-            variant={num(resumo.percentual_dias_estudo) >= 70 ? "success" : "warning"}
+            variant={num(resumo.percentual_dias_estudados ?? resumo.percentual_dias_estudo) >= 70 ? "success" : "warning"}
           />
         </div>
       </Section>
@@ -518,7 +544,7 @@ export default function RelatorioMensalPage() {
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 <div>
                   <p className="text-muted-foreground">Maior streak</p>
-                  <p className="font-mono font-bold text-success">{num(consistencia.maior_streak ?? consistencia.maior_sequencia)}d</p>
+                  <p className="font-mono font-bold text-success">{num(consistencia.maior_streak_estudo ?? consistencia.maior_streak ?? consistencia.maior_sequencia)}d</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Sem estudo</p>
@@ -646,12 +672,15 @@ export default function RelatorioMensalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {blocosPorAssunto.slice(0, 20).map((a: any, i: number) => {
+                  {blocosPorAssunto.slice(0, 30).map((a: any, i: number) => {
                     const status = String(a.status ?? "—").toUpperCase();
                     return (
                       <tr key={i} className="border-b border-border/40 hover:bg-muted/20">
-                        <td className="py-2 pr-3 truncate max-w-[200px]">{a.assunto ?? a.nome ?? "—"}</td>
-                        <td className="py-2 px-2 text-right font-mono">{num(a.ipr ?? a.ipr_medio).toFixed(1)}%</td>
+                        <td className="py-2 pr-3 truncate max-w-[240px]">
+                          <span className="block truncate">{a.assunto_nome ?? a.assunto ?? a.nome ?? "—"}</span>
+                          <span className="block text-[10px] text-muted-foreground/70">{a.materia_nome ?? ""}</span>
+                        </td>
+                        <td className="py-2 px-2 text-right font-mono">{num(a.ipr_medio ?? a.ipr).toFixed(1)}%</td>
                         <td className="py-2 px-2 text-center">
                           <span
                             className="inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider"
@@ -660,7 +689,7 @@ export default function RelatorioMensalPage() {
                             {status}
                           </span>
                         </td>
-                        <td className="py-2 pl-2 text-right font-mono text-muted-foreground">{a.semana_ciclo ?? a.semana ?? "—"}</td>
+                        <td className="py-2 pl-2 text-right font-mono text-muted-foreground">{a.semana_do_ciclo ?? a.semana_ciclo ?? a.semana ?? "—"}</td>
                       </tr>
                     );
                   })}
@@ -687,19 +716,20 @@ export default function RelatorioMensalPage() {
       )}
 
       {/* ANÁLISE DE ERROS */}
-      {(errosData.length > 0 || erros.total !== undefined) && (
+      {(errosData.length > 0 || totalErros > 0 || tendenciaErros) && (
         <Section title="Análise de Erros" icon={AlertTriangle}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Total de erros</p>
-              <p className="text-3xl font-bold font-mono text-critical mb-3">{num(erros.total ?? erros.total_erros)}</p>
-              {erros.tendencia && (
+              <p className="text-3xl font-bold font-mono text-critical mb-3">{totalErros}</p>
+              {tendenciaErros && (
                 <p className="text-[11px] font-mono text-muted-foreground">
                   Tendência:{" "}
                   <span className={`font-bold ${
-                    String(erros.tendencia).includes("MELHOR") ? "text-success" :
-                    String(erros.tendencia).includes("PIOR") ? "text-critical" : "text-warning"
-                  }`}>{erros.tendencia}</span>
+                    tendenciaErros.includes("MELHOR") ? "text-success" :
+                    tendenciaErros.includes("PIOR") ? "text-critical" :
+                    tendenciaErros.includes("SEM_DADOS") ? "text-muted-foreground" : "text-warning"
+                  }`}>{tendenciaErros.replace(/_/g, " ")}</span>
                 </p>
               )}
             </div>
@@ -761,10 +791,10 @@ export default function RelatorioMensalPage() {
       {(redacoesLista.length > 0 || radarComp.length > 0 || evolucaoRedacoes.length > 0) && (
         <Section title="Redações" icon={PenTool}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-            <MetricCard label="Total" value={redacoesLista.length} icon={FileText} />
+            <MetricCard label="Total" value={num(redacoes.total_redacoes ?? redacoesLista.length)} icon={FileText} />
             <MetricCard label="Média" value={num(redacoes.nota_media ?? redacoes.media).toFixed(0)} variant="default" />
-            <MetricCard label="Máxima" value={num(redacoes.nota_max ?? redacoes.maxima)} variant="success" />
-            <MetricCard label="Mínima" value={num(redacoes.nota_min ?? redacoes.minima)} variant="warning" />
+            <MetricCard label="Máxima" value={num(redacoes.nota_maxima ?? redacoes.nota_max ?? redacoes.maxima)} variant="success" />
+            <MetricCard label="Mínima" value={num(redacoes.nota_minima ?? redacoes.nota_min ?? redacoes.minima)} variant="warning" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {radarComp.length > 0 && (
@@ -807,11 +837,18 @@ export default function RelatorioMensalPage() {
       {Object.keys(mental).length > 0 && (
         <Section title="Estado Mental" icon={Brain}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <MetricCard label="Foco médio" value={num(mental.foco_medio).toFixed(1)} icon={Brain} />
-            <MetricCard label="Energia" value={num(mental.energia_media).toFixed(1)} icon={Zap} />
-            <MetricCard label="Confiança" value={num(mental.confianca_media).toFixed(1)} icon={CheckCircle2} />
-            <MetricCard label="Ansiedade" value={num(mental.ansiedade_media).toFixed(1)} variant="warning" />
-            <MetricCard label="Sono" value={num(mental.qualidade_sono_media ?? mental.sono_medio).toFixed(1)} />
+            <MetricCard label="Foco médio" value={num(mental.nivel_foco_medio ?? mental.foco_medio).toFixed(2)} icon={Brain} />
+            <MetricCard label="Energia" value={num(mental.nivel_energia_medio ?? mental.energia_media).toFixed(2)} icon={Zap} />
+            <MetricCard label="Confiança" value={num(mental.nivel_confianca_medio ?? mental.confianca_media).toFixed(2)} icon={CheckCircle2} />
+            <MetricCard
+              label="Ansiedade (sim.)"
+              value={mental.nivel_ansiedade_medio_simulados == null ? "—" : num(mental.nivel_ansiedade_medio_simulados ?? mental.ansiedade_media).toFixed(2)}
+              variant="warning"
+            />
+            <MetricCard
+              label="Sono (sim.)"
+              value={mental.qualidade_sono_media_simulados == null ? "—" : num(mental.qualidade_sono_media_simulados ?? mental.qualidade_sono_media ?? mental.sono_medio).toFixed(2)}
+            />
           </div>
         </Section>
       )}
@@ -822,23 +859,37 @@ export default function RelatorioMensalPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Horas projetadas</p>
-              <p className="text-2xl font-bold font-mono">{formatarHoras(num(projecao.horas_projetadas ?? projecao.horas))}</p>
+              <p className="text-2xl font-bold font-mono">
+                {formatarHoras(num(projecao.projecao_horas_mes ?? projecao.horas_projetadas ?? projecao.horas))}
+              </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta 88h ·{" "}
-                <span className={projecao.on_track_horas ? "text-success" : "text-critical"}>
-                  {projecao.on_track_horas ? "ON TRACK" : "ABAIXO"}
+                Meta {num(projecao.meta_horas_mes, 88)}h ·{" "}
+                <span className={(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "text-success" : "text-critical"}>
+                  {(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "ON TRACK" : "ABAIXO"}
                 </span>
               </p>
+              {num(projecao.dias_restantes) > 0 && num(projecao.horas_necessarias_por_dia) > 0 && (
+                <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
+                  {num(projecao.horas_necessarias_por_dia).toFixed(1)}h/dia restantes
+                </p>
+              )}
             </div>
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Questões projetadas</p>
-              <p className="text-2xl font-bold font-mono">{num(projecao.questoes_projetadas ?? projecao.questoes).toLocaleString("pt-BR")}</p>
+              <p className="text-2xl font-bold font-mono">
+                {num(projecao.projecao_questoes_mes ?? projecao.questoes_projetadas ?? projecao.questoes).toLocaleString("pt-BR")}
+              </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta 1400 ·{" "}
-                <span className={projecao.on_track_questoes ? "text-success" : "text-critical"}>
-                  {projecao.on_track_questoes ? "ON TRACK" : "ABAIXO"}
+                Meta {num(projecao.meta_questoes_mes, 1400).toLocaleString("pt-BR")} ·{" "}
+                <span className={(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "text-success" : "text-critical"}>
+                  {(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "ON TRACK" : "ABAIXO"}
                 </span>
               </p>
+              {num(projecao.dias_restantes) > 0 && num(projecao.questoes_necessarias_por_dia) > 0 && (
+                <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
+                  {num(projecao.questoes_necessarias_por_dia).toFixed(0)} q/dia restantes
+                </p>
+              )}
             </div>
           </div>
         </Section>
@@ -885,19 +936,28 @@ export default function RelatorioMensalPage() {
               </thead>
               <tbody>
                 {balanceamento.map((b: any, i: number) => {
-                  const status = String(b.classificacao ?? b.status ?? "—").toUpperCase();
-                  const color =
-                    status.includes("EQUI") ? "text-success" :
-                    status.includes("SUB") ? "text-critical" :
-                    status.includes("SUPER") ? "text-warning" : "text-muted-foreground";
+                  const balance = String(b.peso_vs_tempo ?? b.classificacao ?? "—").toUpperCase();
+                  const status = String(b.status ?? "—").toUpperCase();
+                  const balanceColor =
+                    balance.includes("EQUI") ? "text-success" :
+                    balance.includes("SUB") ? "text-critical" :
+                    balance.includes("SUPER") ? "text-warning" : "text-muted-foreground";
+                  const statusColor =
+                    status.includes("BOA") || status.includes("BOM") || status.includes("EXCEL") ? "text-success" :
+                    status.includes("REGUL") ? "text-warning" :
+                    status.includes("FRAC") || status.includes("CRÍT") || status.includes("CRIT") ? "text-critical" :
+                    "text-muted-foreground";
                   return (
                     <tr key={i} className="border-b border-border/40 hover:bg-muted/20">
-                      <td className="py-2 pr-3 truncate">{b.materia ?? b.nome}</td>
+                      <td className="py-2 pr-3 truncate">{b.materia_nome ?? b.materia ?? b.nome}</td>
                       <td className="py-2 px-2 text-right font-mono">{num(b.peso_prova ?? b.peso).toFixed(1)}</td>
-                      <td className="py-2 px-2 text-right font-mono">{num(b.percentual_tempo ?? b.pct_tempo).toFixed(1)}%</td>
-                      <td className="py-2 px-2 text-right font-mono">{num(b.percentual_questoes ?? b.pct_questoes).toFixed(1)}%</td>
+                      <td className="py-2 px-2 text-right font-mono">{num(b.tempo_dedicado_percentual ?? b.percentual_tempo ?? b.pct_tempo).toFixed(1)}%</td>
+                      <td className="py-2 px-2 text-right font-mono">{num(b.questoes_respondidas_percentual ?? b.percentual_questoes ?? b.pct_questoes).toFixed(1)}%</td>
                       <td className="py-2 px-2 text-right font-mono">{num(b.ipr).toFixed(1)}%</td>
-                      <td className={`py-2 pl-2 text-center font-bold tracking-wider text-[10px] ${color}`}>{status}</td>
+                      <td className={`py-2 pl-2 text-center font-bold tracking-wider text-[10px] ${balanceColor}`}>
+                        <div>{balance}</div>
+                        <div className={`mt-0.5 text-[9px] ${statusColor}`}>{status}</div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -914,6 +974,9 @@ export default function RelatorioMensalPage() {
             {recomendacoes.map((rec: any, i: number) => {
               const prio = String(rec.prioridade ?? "MEDIA").toUpperCase();
               const cls = PRIO_COLORS[prio] || PRIO_COLORS.MEDIA;
+              const categoria = rec.categoria ? String(rec.categoria).replace(/_/g, " ") : null;
+              const titulo = rec.titulo ?? rec.mensagem ?? rec.recomendacao ?? "Recomendação";
+              const descricao = rec.acao_sugerida ?? rec.descricao ?? rec.detalhe;
               return (
                 <div key={i} className={`p-3 sm:p-4 rounded-lg border ${cls}`}>
                   <div className="flex items-start gap-3">
@@ -921,11 +984,19 @@ export default function RelatorioMensalPage() {
                       {prio}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-foreground mb-0.5">
-                        {rec.titulo ?? rec.acao ?? rec.recomendacao ?? "Recomendação"}
+                      {categoria && (
+                        <p className="text-[9px] tracking-[0.25em] uppercase font-mono text-muted-foreground mb-1">
+                          {categoria}
+                        </p>
+                      )}
+                      <p className="text-sm font-bold text-foreground mb-1">
+                        {titulo}
                       </p>
-                      {(rec.descricao ?? rec.detalhe) && (
-                        <p className="text-xs text-muted-foreground">{rec.descricao ?? rec.detalhe}</p>
+                      {descricao && (
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          <span className="text-accent font-bold mr-1">▸</span>
+                          {descricao}
+                        </p>
                       )}
                     </div>
                   </div>
