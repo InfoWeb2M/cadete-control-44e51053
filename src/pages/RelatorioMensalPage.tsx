@@ -365,58 +365,84 @@ export default function RelatorioMensalPage() {
   const recomendacoes = arr<any>(r.recomendacoes_estrategicas || r.recomendacoes);
 
   // === Derived charts ===
-  const distSessoesData = Object.entries(obj(sessoes.distribuicao_por_tipo || sessoes.por_tipo)).map(([tipo, v]: any) => ({
-    tipo,
-    minutos: num(v?.minutos ?? v?.tempo_total ?? v?.total_minutos),
-    quantidade: num(v?.quantidade ?? v?.total),
-    foco: num(v?.foco_medio),
+  // sessoes.por_tipo é array no backend
+  const distSessoesData = arr<any>(sessoes.por_tipo ?? sessoes.distribuicao_por_tipo).map(v => ({
+    tipo: v.tipo_sessao ?? v.tipo ?? "—",
+    minutos: num(v.total_minutos ?? v.minutos ?? v.tempo_total),
+    quantidade: num(v.quantidade ?? v.total),
+    foco: num(v.media_foco ?? v.foco_medio),
+    energia: num(v.media_energia),
+    pct: num(v.percentual_do_total ?? v.percentual),
   }));
 
-  const sessoesPorMateria = arr<any>(sessoes.distribuicao_por_materia || sessoes.por_materia).map(m => ({
-    materia: m.materia ?? m.nome ?? "—",
-    tempo: num(m.tempo_minutos ?? m.minutos ?? m.tempo),
-    pct: num(m.percentual ?? m.pct),
+  const sessoesPorMateria = arr<any>(sessoes.por_materia ?? sessoes.distribuicao_por_materia).map(m => ({
+    materia: m.materia_nome ?? m.materia ?? m.nome ?? "—",
+    tempo: num(m.total_minutos ?? m.tempo_minutos ?? m.minutos ?? m.tempo),
+    pct: num(m.percentual_tempo ?? m.percentual ?? m.pct),
+    sessoes: num(m.total_sessoes),
+    foco: num(m.media_foco),
   }));
 
-  const blocosPorMateria = arr<any>(blocos.por_materia || blocos.desempenho_por_materia).map(m => ({
-    materia: m.materia ?? m.nome ?? "—",
+  const blocosPorMateria = arr<any>(blocos.por_materia ?? blocos.desempenho_por_materia).map(m => ({
+    materia: m.materia_nome ?? m.materia ?? m.nome ?? "—",
     ipr: num(m.ipr_medio ?? m.ipr),
     questoes: num(m.total_questoes ?? m.questoes),
-    acertos: num(m.acertos),
+    acertos: num(m.total_acertos ?? m.acertos),
+    pctAcerto: num(m.percentual_acerto),
   }));
 
-  const blocosPorAssunto = arr<any>(blocos.por_assunto || blocos.desempenho_por_assunto);
-  const distDificuldade = obj(blocos.distribuicao_por_dificuldade || blocos.dificuldade);
-  const dificuldadeData = Object.entries(distDificuldade).map(([k, v]) => ({
-    dificuldade: `Nível ${k}`,
-    total: num(v),
+  const blocosPorAssunto = arr<any>(blocos.por_assunto ?? blocos.desempenho_por_assunto);
+
+  // por_dificuldade é array no backend
+  const dificuldadeData = arr<any>(blocos.por_dificuldade ?? blocos.distribuicao_por_dificuldade).map(d => ({
+    dificuldade: `Nível ${d.dificuldade ?? "?"}`,
+    total: num(d.total_questoes ?? d.total),
+    acertos: num(d.total_acertos),
+    pct: num(d.percentual_acerto),
+    ipr: num(d.ipr_medio),
   }));
 
-  const errosPorTipo = obj(erros.por_tipo || erros.tipos);
-  const errosData = Object.entries(errosPorTipo).map(([tipo, total]) => ({
-    tipo,
-    total: num(total),
+  // erros.tipos_mais_comuns é array de objetos
+  const errosData = arr<any>(erros.tipos_mais_comuns ?? erros.todos_os_tipos).map((e: any) => ({
+    tipo: e.tipo ?? e.nome ?? String(e),
+    total: num(e.total ?? e.quantidade ?? e.count),
   }));
+  const totalErros = num(erros.total_erros_registrados ?? erros.total ?? erros.total_erros);
+  const tendenciaErros = String(erros.tendencia_erro ?? erros.tendencia ?? "");
 
-  const simuladosLista = arr<any>(simulados.lista || simulados.detalhamento || simulados.itens);
+  const simuladosLista = Array.isArray(simulados)
+    ? (simulados as any[])
+    : arr<any>((simulados as any).lista ?? (simulados as any).detalhamento ?? (simulados as any).itens);
   const evolucaoSimulados = simuladosLista.map((s, i) => ({
-    label: s.label ?? `S${i + 1}`,
+    label: s.label ?? (s.numero_semana ? `S${s.numero_semana}` : `S${i + 1}`),
     pct: num(s.percentual_acerto ?? s.percentual),
-    ipr: num(s.ipr),
+    ipr: num(s.ipr ?? s.ipr_medio),
   }));
 
-  const provasLista = arr<any>(provas.lista || provas.itens);
-  const redacoesLista = arr<any>(redacoes.lista || redacoes.itens);
-  const evolucaoRedacoes = arr<any>(redacoes.evolucao || redacoes.evolucao_nota).map((p, i) => ({
+  const provasLista = Array.isArray(provas)
+    ? (provas as any[])
+    : arr<any>((provas as any).lista ?? (provas as any).itens);
+
+  const redacoesLista = arr<any>(redacoes.redacoes ?? redacoes.lista ?? redacoes.itens);
+  const evolucaoRedacoes = arr<any>(redacoes.evolucao_nota ?? redacoes.evolucao).map((p, i) => ({
     label: p.data ? new Date(p.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : `R${i + 1}`,
     nota: num(p.nota ?? p.nota_total),
   }));
 
-  const competenciasMedia = obj(redacoes.media_por_competencia || redacoes.competencias);
-  const radarComp = Object.entries(competenciasMedia).map(([k, v]) => ({
-    comp: `C${String(k).replace(/\D/g, "")}`,
-    nota: num(v),
-  }));
+  // Construir radar a partir de media_competencia1..5 OU media_por_competencia
+  let radarComp: { comp: string; nota: number }[] = [];
+  const mediaPorCompObj = obj(redacoes.media_por_competencia ?? redacoes.competencias);
+  if (Object.keys(mediaPorCompObj).length > 0) {
+    radarComp = Object.entries(mediaPorCompObj).map(([k, v]) => ({
+      comp: `C${String(k).replace(/\D/g, "")}`,
+      nota: num(v),
+    }));
+  } else {
+    for (let i = 1; i <= 5; i++) {
+      const v = redacoes[`media_competencia${i}`];
+      if (typeof v === "number") radarComp.push({ comp: `C${i}`, nota: v });
+    }
+  }
 
   const isEmpty = Object.keys(r).length === 0;
 
