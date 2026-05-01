@@ -974,6 +974,9 @@ export default function RelatorioMensalPage() {
             {recomendacoes.map((rec: any, i: number) => {
               const prio = String(rec.prioridade ?? "MEDIA").toUpperCase();
               const cls = PRIO_COLORS[prio] || PRIO_COLORS.MEDIA;
+              const categoria = rec.categoria ? String(rec.categoria).replace(/_/g, " ") : null;
+              const titulo = rec.titulo ?? rec.mensagem ?? rec.recomendacao ?? "Recomendação";
+              const descricao = rec.acao_sugerida ?? rec.descricao ?? rec.detalhe;
               return (
                 <div key={i} className={`p-3 sm:p-4 rounded-lg border ${cls}`}>
                   <div className="flex items-start gap-3">
@@ -981,11 +984,19 @@ export default function RelatorioMensalPage() {
                       {prio}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-foreground mb-0.5">
-                        {rec.titulo ?? rec.acao ?? rec.recomendacao ?? "Recomendação"}
+                      {categoria && (
+                        <p className="text-[9px] tracking-[0.25em] uppercase font-mono text-muted-foreground mb-1">
+                          {categoria}
+                        </p>
+                      )}
+                      <p className="text-sm font-bold text-foreground mb-1">
+                        {titulo}
                       </p>
-                      {(rec.descricao ?? rec.detalhe) && (
-                        <p className="text-xs text-muted-foreground">{rec.descricao ?? rec.detalhe}</p>
+                      {descricao && (
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          <span className="text-accent font-bold mr-1">▸</span>
+                          {descricao}
+                        </p>
                       )}
                     </div>
                   </div>
