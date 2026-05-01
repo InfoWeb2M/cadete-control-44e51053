@@ -936,19 +936,28 @@ export default function RelatorioMensalPage() {
               </thead>
               <tbody>
                 {balanceamento.map((b: any, i: number) => {
-                  const status = String(b.classificacao ?? b.status ?? "—").toUpperCase();
-                  const color =
-                    status.includes("EQUI") ? "text-success" :
-                    status.includes("SUB") ? "text-critical" :
-                    status.includes("SUPER") ? "text-warning" : "text-muted-foreground";
+                  const balance = String(b.peso_vs_tempo ?? b.classificacao ?? "—").toUpperCase();
+                  const status = String(b.status ?? "—").toUpperCase();
+                  const balanceColor =
+                    balance.includes("EQUI") ? "text-success" :
+                    balance.includes("SUB") ? "text-critical" :
+                    balance.includes("SUPER") ? "text-warning" : "text-muted-foreground";
+                  const statusColor =
+                    status.includes("BOA") || status.includes("BOM") || status.includes("EXCEL") ? "text-success" :
+                    status.includes("REGUL") ? "text-warning" :
+                    status.includes("FRAC") || status.includes("CRÍT") || status.includes("CRIT") ? "text-critical" :
+                    "text-muted-foreground";
                   return (
                     <tr key={i} className="border-b border-border/40 hover:bg-muted/20">
-                      <td className="py-2 pr-3 truncate">{b.materia ?? b.nome}</td>
+                      <td className="py-2 pr-3 truncate">{b.materia_nome ?? b.materia ?? b.nome}</td>
                       <td className="py-2 px-2 text-right font-mono">{num(b.peso_prova ?? b.peso).toFixed(1)}</td>
-                      <td className="py-2 px-2 text-right font-mono">{num(b.percentual_tempo ?? b.pct_tempo).toFixed(1)}%</td>
-                      <td className="py-2 px-2 text-right font-mono">{num(b.percentual_questoes ?? b.pct_questoes).toFixed(1)}%</td>
+                      <td className="py-2 px-2 text-right font-mono">{num(b.tempo_dedicado_percentual ?? b.percentual_tempo ?? b.pct_tempo).toFixed(1)}%</td>
+                      <td className="py-2 px-2 text-right font-mono">{num(b.questoes_respondidas_percentual ?? b.percentual_questoes ?? b.pct_questoes).toFixed(1)}%</td>
                       <td className="py-2 px-2 text-right font-mono">{num(b.ipr).toFixed(1)}%</td>
-                      <td className={`py-2 pl-2 text-center font-bold tracking-wider text-[10px] ${color}`}>{status}</td>
+                      <td className={`py-2 pl-2 text-center font-bold tracking-wider text-[10px] ${balanceColor}`}>
+                        <div>{balance}</div>
+                        <div className={`mt-0.5 text-[9px] ${statusColor}`}>{status}</div>
+                      </td>
                     </tr>
                   );
                 })}
