@@ -483,29 +483,29 @@ export default function RelatorioMensalPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <MetricCard
             label="Horas líquidas"
-            value={formatarHoras(num(resumo.horas_totais_liquidas ?? resumo.horas_liquidas))}
+            value={formatarHoras(num(resumo.horas_totais ?? resumo.horas_totais_liquidas ?? resumo.horas_liquidas))}
             icon={Clock}
-            hint={<TrendPill delta={num(comparativo?.horas?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.horas?.variacao_percentual ?? comparativo?.horas?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Questões"
-            value={num(resumo.total_questoes).toLocaleString("pt-BR")}
+            value={num(resumo.total_questoes_respondidas ?? resumo.total_questoes).toLocaleString("pt-BR")}
             icon={ListChecks}
-            hint={<TrendPill delta={num(comparativo?.questoes?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.questoes?.variacao_percentual ?? comparativo?.questoes?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Acertos"
-            value={`${num(resumo.percentual_medio_acerto ?? resumo.percentual_acerto).toFixed(1)}%`}
+            value={`${num(resumo.percentual_acerto_geral ?? resumo.percentual_medio_acerto ?? resumo.percentual_acerto).toFixed(1)}%`}
             icon={Percent}
-            variant={num(resumo.percentual_medio_acerto) >= 70 ? "success" : "warning"}
-            hint={<TrendPill delta={num(comparativo?.percentual_acerto?.variacao_pct, NaN)} suffix="%" />}
+            variant={num(resumo.percentual_acerto_geral ?? resumo.percentual_medio_acerto) >= 70 ? "success" : "warning"}
+            hint={<TrendPill delta={num(comparativo?.percentual_acerto?.variacao_percentual ?? comparativo?.percentual_acerto?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="IPR Geral"
             value={`${num(resumo.ipr_geral).toFixed(1)}%`}
             icon={Target}
             variant={num(resumo.ipr_geral) >= 85 ? "success" : num(resumo.ipr_geral) >= 70 ? "warning" : "critical"}
-            hint={<TrendPill delta={num(comparativo?.ipr?.variacao_pct, NaN)} suffix="%" />}
+            hint={<TrendPill delta={num(comparativo?.ipr?.variacao_percentual ?? comparativo?.ipr?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
             label="Questões/dia"
@@ -514,9 +514,9 @@ export default function RelatorioMensalPage() {
           />
           <MetricCard
             label="Dias estudados"
-            value={`${num(resumo.percentual_dias_estudo ?? (periodo.dias_estudados / Math.max(1, periodo.dias_no_mes)) * 100).toFixed(0)}%`}
+            value={`${num(resumo.percentual_dias_estudados ?? resumo.percentual_dias_estudo ?? (periodo.dias_estudados / Math.max(1, periodo.dias_no_mes)) * 100).toFixed(0)}%`}
             icon={Flame}
-            variant={num(resumo.percentual_dias_estudo) >= 70 ? "success" : "warning"}
+            variant={num(resumo.percentual_dias_estudados ?? resumo.percentual_dias_estudo) >= 70 ? "success" : "warning"}
           />
         </div>
       </Section>
