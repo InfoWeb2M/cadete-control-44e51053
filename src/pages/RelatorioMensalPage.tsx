@@ -544,7 +544,7 @@ export default function RelatorioMensalPage() {
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 <div>
                   <p className="text-muted-foreground">Maior streak</p>
-                  <p className="font-mono font-bold text-success">{num(consistencia.maior_streak ?? consistencia.maior_sequencia)}d</p>
+                  <p className="font-mono font-bold text-success">{num(consistencia.maior_streak_estudo ?? consistencia.maior_streak ?? consistencia.maior_sequencia)}d</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Sem estudo</p>
