@@ -855,23 +855,37 @@ export default function RelatorioMensalPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Horas projetadas</p>
-              <p className="text-2xl font-bold font-mono">{formatarHoras(num(projecao.horas_projetadas ?? projecao.horas))}</p>
+              <p className="text-2xl font-bold font-mono">
+                {formatarHoras(num(projecao.projecao_horas_mes ?? projecao.horas_projetadas ?? projecao.horas))}
+              </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta 88h ·{" "}
-                <span className={projecao.on_track_horas ? "text-success" : "text-critical"}>
-                  {projecao.on_track_horas ? "ON TRACK" : "ABAIXO"}
+                Meta {num(projecao.meta_horas_mes, 88)}h ·{" "}
+                <span className={(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "text-success" : "text-critical"}>
+                  {(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "ON TRACK" : "ABAIXO"}
                 </span>
               </p>
+              {num(projecao.dias_restantes) > 0 && num(projecao.horas_necessarias_por_dia) > 0 && (
+                <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
+                  {num(projecao.horas_necessarias_por_dia).toFixed(1)}h/dia restantes
+                </p>
+              )}
             </div>
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Questões projetadas</p>
-              <p className="text-2xl font-bold font-mono">{num(projecao.questoes_projetadas ?? projecao.questoes).toLocaleString("pt-BR")}</p>
+              <p className="text-2xl font-bold font-mono">
+                {num(projecao.projecao_questoes_mes ?? projecao.questoes_projetadas ?? projecao.questoes).toLocaleString("pt-BR")}
+              </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta 1400 ·{" "}
-                <span className={projecao.on_track_questoes ? "text-success" : "text-critical"}>
-                  {projecao.on_track_questoes ? "ON TRACK" : "ABAIXO"}
+                Meta {num(projecao.meta_questoes_mes, 1400).toLocaleString("pt-BR")} ·{" "}
+                <span className={(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "text-success" : "text-critical"}>
+                  {(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "ON TRACK" : "ABAIXO"}
                 </span>
               </p>
+              {num(projecao.dias_restantes) > 0 && num(projecao.questoes_necessarias_por_dia) > 0 && (
+                <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
+                  {num(projecao.questoes_necessarias_por_dia).toFixed(0)} q/dia restantes
+                </p>
+              )}
             </div>
           </div>
         </Section>
