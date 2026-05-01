@@ -716,19 +716,20 @@ export default function RelatorioMensalPage() {
       )}
 
       {/* ANÁLISE DE ERROS */}
-      {(errosData.length > 0 || erros.total !== undefined) && (
+      {(errosData.length > 0 || totalErros > 0 || tendenciaErros) && (
         <Section title="Análise de Erros" icon={AlertTriangle}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             <div className="p-4 rounded-lg border border-border bg-card/80">
               <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-2">Total de erros</p>
-              <p className="text-3xl font-bold font-mono text-critical mb-3">{num(erros.total ?? erros.total_erros)}</p>
-              {erros.tendencia && (
+              <p className="text-3xl font-bold font-mono text-critical mb-3">{totalErros}</p>
+              {tendenciaErros && (
                 <p className="text-[11px] font-mono text-muted-foreground">
                   Tendência:{" "}
                   <span className={`font-bold ${
-                    String(erros.tendencia).includes("MELHOR") ? "text-success" :
-                    String(erros.tendencia).includes("PIOR") ? "text-critical" : "text-warning"
-                  }`}>{erros.tendencia}</span>
+                    tendenciaErros.includes("MELHOR") ? "text-success" :
+                    tendenciaErros.includes("PIOR") ? "text-critical" :
+                    tendenciaErros.includes("SEM_DADOS") ? "text-muted-foreground" : "text-warning"
+                  }`}>{tendenciaErros.replace(/_/g, " ")}</span>
                 </p>
               )}
             </div>
