@@ -833,11 +833,18 @@ export default function RelatorioMensalPage() {
       {Object.keys(mental).length > 0 && (
         <Section title="Estado Mental" icon={Brain}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <MetricCard label="Foco médio" value={num(mental.foco_medio).toFixed(1)} icon={Brain} />
-            <MetricCard label="Energia" value={num(mental.energia_media).toFixed(1)} icon={Zap} />
-            <MetricCard label="Confiança" value={num(mental.confianca_media).toFixed(1)} icon={CheckCircle2} />
-            <MetricCard label="Ansiedade" value={num(mental.ansiedade_media).toFixed(1)} variant="warning" />
-            <MetricCard label="Sono" value={num(mental.qualidade_sono_media ?? mental.sono_medio).toFixed(1)} />
+            <MetricCard label="Foco médio" value={num(mental.nivel_foco_medio ?? mental.foco_medio).toFixed(2)} icon={Brain} />
+            <MetricCard label="Energia" value={num(mental.nivel_energia_medio ?? mental.energia_media).toFixed(2)} icon={Zap} />
+            <MetricCard label="Confiança" value={num(mental.nivel_confianca_medio ?? mental.confianca_media).toFixed(2)} icon={CheckCircle2} />
+            <MetricCard
+              label="Ansiedade (sim.)"
+              value={mental.nivel_ansiedade_medio_simulados == null ? "—" : num(mental.nivel_ansiedade_medio_simulados ?? mental.ansiedade_media).toFixed(2)}
+              variant="warning"
+            />
+            <MetricCard
+              label="Sono (sim.)"
+              value={mental.qualidade_sono_media_simulados == null ? "—" : num(mental.qualidade_sono_media_simulados ?? mental.qualidade_sono_media ?? mental.sono_medio).toFixed(2)}
+            />
           </div>
         </Section>
       )}
