@@ -791,10 +791,10 @@ export default function RelatorioMensalPage() {
       {(redacoesLista.length > 0 || radarComp.length > 0 || evolucaoRedacoes.length > 0) && (
         <Section title="Redações" icon={PenTool}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-            <MetricCard label="Total" value={redacoesLista.length} icon={FileText} />
+            <MetricCard label="Total" value={num(redacoes.total_redacoes ?? redacoesLista.length)} icon={FileText} />
             <MetricCard label="Média" value={num(redacoes.nota_media ?? redacoes.media).toFixed(0)} variant="default" />
-            <MetricCard label="Máxima" value={num(redacoes.nota_max ?? redacoes.maxima)} variant="success" />
-            <MetricCard label="Mínima" value={num(redacoes.nota_min ?? redacoes.minima)} variant="warning" />
+            <MetricCard label="Máxima" value={num(redacoes.nota_maxima ?? redacoes.nota_max ?? redacoes.maxima)} variant="success" />
+            <MetricCard label="Mínima" value={num(redacoes.nota_minima ?? redacoes.nota_min ?? redacoes.minima)} variant="warning" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {radarComp.length > 0 && (
