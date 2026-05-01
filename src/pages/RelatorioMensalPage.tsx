@@ -352,8 +352,8 @@ export default function RelatorioMensalPage() {
   const sessoes = obj(r.sessoes || r.sessoes_estudo);
   const blocos = obj(r.blocos || r.blocos_questoes);
   const erros = obj(r.analise_erros || r.erros);
-  const simulados = obj(r.simulados_semanais || r.simulados);
-  const provas = obj(r.provas_oficiais || r.provas);
+  const simulados = r.simulados_semanais ?? r.simulados ?? [];
+  const provas = r.provas_oficiais ?? r.provas ?? [];
   const redacoes = obj(r.redacoes);
   const mental = obj(r.estado_mental);
   const comparativo = obj(r.comparativo_mes_anterior || r.comparativo);
