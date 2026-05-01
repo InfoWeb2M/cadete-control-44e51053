@@ -672,12 +672,15 @@ export default function RelatorioMensalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {blocosPorAssunto.slice(0, 20).map((a: any, i: number) => {
+                  {blocosPorAssunto.slice(0, 30).map((a: any, i: number) => {
                     const status = String(a.status ?? "—").toUpperCase();
                     return (
                       <tr key={i} className="border-b border-border/40 hover:bg-muted/20">
-                        <td className="py-2 pr-3 truncate max-w-[200px]">{a.assunto ?? a.nome ?? "—"}</td>
-                        <td className="py-2 px-2 text-right font-mono">{num(a.ipr ?? a.ipr_medio).toFixed(1)}%</td>
+                        <td className="py-2 pr-3 truncate max-w-[240px]">
+                          <span className="block truncate">{a.assunto_nome ?? a.assunto ?? a.nome ?? "—"}</span>
+                          <span className="block text-[10px] text-muted-foreground/70">{a.materia_nome ?? ""}</span>
+                        </td>
+                        <td className="py-2 px-2 text-right font-mono">{num(a.ipr_medio ?? a.ipr).toFixed(1)}%</td>
                         <td className="py-2 px-2 text-center">
                           <span
                             className="inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider"
@@ -686,7 +689,7 @@ export default function RelatorioMensalPage() {
                             {status}
                           </span>
                         </td>
-                        <td className="py-2 pl-2 text-right font-mono text-muted-foreground">{a.semana_ciclo ?? a.semana ?? "—"}</td>
+                        <td className="py-2 pl-2 text-right font-mono text-muted-foreground">{a.semana_do_ciclo ?? a.semana_ciclo ?? a.semana ?? "—"}</td>
                       </tr>
                     );
                   })}
