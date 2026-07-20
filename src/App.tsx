@@ -16,6 +16,7 @@ import CountdownPage from "./pages/CountdownPage";
 import TimerPage from "./pages/TimerPage";
 import CronogramaPage from "./pages/CronogramaPage";
 import RelatorioMensalPage from "./pages/RelatorioMensalPage";
+import ListaRevisaoPage from "./pages/ListaRevisaoPage";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
