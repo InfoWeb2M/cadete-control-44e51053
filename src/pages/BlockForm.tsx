@@ -14,6 +14,7 @@ export default function BlockPage() {
   const [totalQ, setTotalQ] = useState("");
   const [totalA, setTotalA] = useState("");
   const [tempo, setTempo] = useState("");
+  const [confiancaSet, setConfiancaSet] = useState(false);
   const [confianca, setConfianca] = useState(3);
   const [resultado, setResultado] = useState<{ pct: number; critico: boolean } | null>(null);
 
@@ -21,6 +22,7 @@ export default function BlockPage() {
   const { data: blocos, isLoading: loadingBlocos } = useBlocos();
 
   const resetForm = () => {
+    setConfiancaSet(false);
     setMateriaId(""); setAssuntoId(""); setTotalQ(""); setTotalA(""); setTempo(""); setDificuldade(3); setConfianca(3);
   };
 
@@ -47,7 +49,7 @@ export default function BlockPage() {
       total_questoes: tq,
       total_acertos: ta,
       tempo_total_segundos: parseInt(tempo) * 60,
-      nivel_confianca_medio: confianca,
+      nivel_confianca_medio: confiancaSet ? confianca : null,
     };
     mutation.mutate(data);
   };
@@ -69,7 +71,7 @@ export default function BlockPage() {
                 {resultado.pct}% de acerto
               </p>
               <p className="text-xs text-muted-foreground">
-                {resultado.critico ? "Assunto marcado como CRÍTICO" : "Performance dentro do esperado"}
+                {resultado.critico ? "Confira os erros deste bloco; a amostra isolada não define domínio" : "Resultado registrado; continue acompanhando a amostra"}
               </p>
             </div>
           )}
@@ -95,8 +97,8 @@ export default function BlockPage() {
             <FieldGroup label="Tempo Total (minutos)">
               <input type="number" min={1} value={tempo} onChange={(e) => setTempo(e.target.value)} className="form-input" placeholder="Ex: 30" />
             </FieldGroup>
-            <FieldGroup label={`Confiança Média: ${confianca}`}>
-              <input type="range" min={1} max={5} value={confianca} onChange={(e) => setConfianca(+e.target.value)} className="w-full accent-accent" />
+            <FieldGroup label={`Confiança Média: ${confiancaSet ? confianca : "não informado (opcional)"}`}>
+              <input type="range" min={1} max={5} value={confianca} onChange={(e) => {setConfiancaSet(true); setConfianca(+e.target.value);}} className="w-full accent-accent" />
             </FieldGroup>
             <button type="submit" disabled={mutation.isPending}
               className="btn-tactical">
@@ -135,9 +137,9 @@ export default function BlockPage() {
 
 function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</label>
+    <fieldset>
+      <legend className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</legend>
       {children}
-    </div>
+    </fieldset>
   );
 }

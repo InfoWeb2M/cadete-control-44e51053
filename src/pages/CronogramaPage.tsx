@@ -1,3 +1,4 @@
+import {Link} from "react-router-dom";
 import { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { CRONOGRAMA, DIAS_ORDEM, DIAS_LABEL, getDiaAtual, isHorarioAtual, type DiaSemana } from "@/lib/cronograma";
@@ -17,6 +18,7 @@ export default function CronogramaPage() {
 
   return (
     <AppLayout>
+      <p className="tac-card mb-5 text-sm">Este cronograma é a referência fixa que já estava no projeto. Para seguir as cotas e retomar sem replanejar a semana, use <Link to="/estudar" className="text-accent underline">Estudar agora</Link>.</p>
       <div className="page-header flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
           <h1 className="page-title">Cronograma Semanal</h1>

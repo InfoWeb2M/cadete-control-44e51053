@@ -20,6 +20,8 @@ let persisted: TimerState = {
   finished: false,
 };
 
+try { const saved=JSON.parse(localStorage.getItem('provectus:timer:v1')||'null'); if(saved && ['timer','stopwatch'].includes(saved.mode) && Number.isFinite(saved.elapsed)) persisted=saved; } catch { /* Browser storage may be unavailable. */ }
+
 function playAlarm() {
   const ctx = new AudioContext();
   const beep = (time: number) => {
@@ -127,6 +129,7 @@ export default function TimerPage() {
 
   useEffect(() => {
     persisted = { mode, timerSeconds, elapsed, running, lastTick: lastTickRef.current, finished };
+    try {localStorage.setItem('provectus:timer:v1',JSON.stringify(persisted));} catch { /* The active timer still works in memory. */ }
     if (running || elapsed > 0) {
       const display = mode === "timer" ? fmtTimer(timerSeconds * 1000 - elapsed) : fmtStopwatch(elapsed);
       document.title = `${display} - Provectus`;

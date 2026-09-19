@@ -68,11 +68,12 @@ function AnimatedValue({ value }: { value: string | number }) {
   // Try to detect numeric prefix like "12h" / "78%" / "312"
   const str = String(value);
   const match = str.match(/^([\d.,]+)(.*)$/);
+  const animated = useCountUp(match ? parseFloat(match[1].replace(",", ".")) : 0);
   if (!match) return <>{value}</>;
   const num = parseFloat(match[1].replace(",", "."));
   const suffix = match[2];
   if (Number.isNaN(num)) return <>{value}</>;
-  const animated = useCountUp(num);
+
   const display = num % 1 === 0 ? Math.round(animated) : animated.toFixed(1);
   return <>{display}{suffix}</>;
 }

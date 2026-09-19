@@ -25,7 +25,7 @@ const LOADING_STEPS = [
   "Coletando sessões de estudo",
   "Processando blocos de questões",
   "Cruzando simulados e provas",
-  "Calculando IPR consolidado",
+  "Calculando Precisão consolidado",
   "Analisando redações",
   "Gerando recomendações estratégicas",
   "Compilando relatório final",
@@ -297,39 +297,16 @@ const CHART_COLORS = [
  * ========================================================================= */
 
 export default function RelatorioMensalPage() {
-  // Enquanto o mês corrente não fechar (ou seja, antes do próximo dia 1º),
-  // mostramos o loader em loop com a mensagem "Juntando mais informações".
-  // A consulta à API só é habilitada após a virada do mês.
-  const hoje = new Date();
-  const aguardandoFechamento = hoje.getDate() !== 1 ? false : false; // sempre aguarda até virar o mês
-  // Regra: como este é o PRIMEIRO mês de uso, o relatório só existe a partir do próximo dia 1º.
-  // Comportamento: sempre renderizar o WaitingNextMonthLoader até a data virar.
-  // Para destravar quando o mês virar, basta o componente re-renderizar (o setInterval interno cuida disso).
-  const { dias } = diasAteProximoMes(hoje);
-  const aindaNaoLiberado = dias > 0 && hoje.getDate() !== 1;
-
-  const { data, isLoading, isError, error } = useRelatorioMensal();
-  const { mes, ano } = mesAnterior();
-
-  if (aindaNaoLiberado) {
-    return (
-      <AppLayout>
-        <div className="page-header">
-          <p className="text-[10px] tracking-[0.3em] uppercase text-accent font-mono mb-1 flex items-center gap-2">
-            <Radio className="h-3 w-3 animate-pulse-glow" /> Relatório consolidado
-          </p>
-          <h1 className="page-title">Relatório Mensal</h1>
-          <p className="page-subtitle">Aguardando o fechamento do mês corrente</p>
-        </div>
-        <WaitingNextMonthLoader />
-      </AppLayout>
-    );
-  }
+  const inicial = mesAnterior();
+  const [mesSelecionado, setMesSelecionado] = useState(`${inicial.ano}-${String(inicial.mes).padStart(2,'0')}`);
+  const [ano, mes] = mesSelecionado.split('-').map(Number);
+  const { data, isLoading, isError, error } = useRelatorioMensal(mes, ano);
+  const monthPicker = <label className="block text-sm mb-5">Mês do relatório<input aria-label="Mês do relatório" type="month" min="2000-01" max={new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')} className="form-input mt-1 max-w-xs" value={mesSelecionado} onChange={e=>{if(e.target.value)setMesSelecionado(e.target.value);}}/></label>;
 
   if (isLoading) {
     return (
       <AppLayout>
-        <GatheringLoader />
+        {monthPicker}<GatheringLoader />
       </AppLayout>
     );
   }
@@ -341,7 +318,7 @@ export default function RelatorioMensalPage() {
           <h1 className="page-title">Relatório Mensal</h1>
           <p className="page-subtitle">{NOMES_MES[mes - 1]} / {ano}</p>
         </div>
-        <ErrorState message={(error as Error)?.message || "Falha ao carregar o relatório."} />
+        {monthPicker}<ErrorState message={(error as Error)?.message || "Falha ao carregar o relatório."} />
       </AppLayout>
     );
   }
@@ -404,8 +381,8 @@ export default function RelatorioMensalPage() {
 
   // erros.tipos_mais_comuns é array de objetos
   const errosData = arr<any>(erros.tipos_mais_comuns ?? erros.todos_os_tipos).map((e: any) => ({
-    tipo: e.tipo ?? e.nome ?? String(e),
-    total: num(e.total ?? e.quantidade ?? e.count),
+    tipo: e.tipo_erro ?? e.tipo ?? "Sem categoria",
+    total: num(e.total_ocorrencias ?? e.total ?? e.quantidade),
   }));
   const totalErros = num(erros.total_erros_registrados ?? erros.total ?? erros.total_erros);
   const tendenciaErros = String(erros.tendencia_erro ?? erros.tendencia ?? "");
@@ -448,6 +425,8 @@ export default function RelatorioMensalPage() {
 
   return (
     <AppLayout>
+      {monthPicker}
+      <p className="text-xs text-muted-foreground mb-4">Precisão observada = acertos / questões. Horas e presença são descritivas; não medem domínio. Comparações usam janelas equivalentes.</p>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
@@ -501,7 +480,7 @@ export default function RelatorioMensalPage() {
             hint={<TrendPill delta={num(comparativo?.percentual_acerto?.variacao_percentual ?? comparativo?.percentual_acerto?.variacao_pct, NaN)} suffix="%" />}
           />
           <MetricCard
-            label="IPR Geral"
+            label="Precisão Geral"
             value={`${num(resumo.ipr_geral).toFixed(1)}%`}
             icon={Target}
             variant={num(resumo.ipr_geral) >= 85 ? "success" : num(resumo.ipr_geral) >= 70 ? "warning" : "critical"}
@@ -560,7 +539,7 @@ export default function RelatorioMensalPage() {
                   <p className="text-[10px] tracking-[0.2em] uppercase text-success font-mono font-bold">Melhor dia</p>
                 </div>
                 <p className="text-lg font-bold font-mono">
-                  {melhorPior.melhor_dia.data ? new Date(melhorPior.melhor_dia.data).toLocaleDateString("pt-BR") : "—"}
+                  {melhorPior.melhor_dia.data ? new Date(`${melhorPior.melhor_dia.data}T12:00:00`).toLocaleDateString("pt-BR") : "—"}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize mb-2">{melhorPior.melhor_dia.dia_semana ?? ""}</p>
                 <div className="grid grid-cols-3 gap-2 text-[11px]">
@@ -578,7 +557,7 @@ export default function RelatorioMensalPage() {
                   <p className="text-[10px] tracking-[0.2em] uppercase text-critical font-mono font-bold">Pior dia</p>
                 </div>
                 <p className="text-lg font-bold font-mono">
-                  {melhorPior.pior_dia.data ? new Date(melhorPior.pior_dia.data).toLocaleDateString("pt-BR") : "—"}
+                  {melhorPior.pior_dia.data ? new Date(`${melhorPior.pior_dia.data}T12:00:00`).toLocaleDateString("pt-BR") : "—"}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize mb-2">{melhorPior.pior_dia.dia_semana ?? ""}</p>
                 <div className="grid grid-cols-3 gap-2 text-[11px]">
@@ -642,7 +621,7 @@ export default function RelatorioMensalPage() {
         <Section title="Blocos de Questões" icon={ListChecks}>
           {blocosPorMateria.length > 0 && (
             <div className="p-4 rounded-lg border border-border bg-card/80 mb-3">
-              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-3">IPR por matéria</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-mono mb-3">Precisão por matéria</p>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={blocosPorMateria}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -666,13 +645,13 @@ export default function RelatorioMensalPage() {
                 <thead className="text-[10px] tracking-wider uppercase text-muted-foreground border-b border-border">
                   <tr>
                     <th className="text-left py-2 pr-3">Assunto</th>
-                    <th className="text-right py-2 px-2">IPR</th>
+                    <th className="text-right py-2 px-2">Precisão</th>
                     <th className="text-center py-2 px-2">Status</th>
                     <th className="text-right py-2 pl-2">Semana</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {blocosPorAssunto.slice(0, 30).map((a: any, i: number) => {
+                  {blocosPorAssunto.map((a: any, i: number) => {
                     const status = String(a.status ?? "—").toUpperCase();
                     return (
                       <tr key={i} className="border-b border-border/40 hover:bg-muted/20">
@@ -763,7 +742,7 @@ export default function RelatorioMensalPage() {
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line type="monotone" dataKey="pct" name="% Acerto" stroke="hsl(43, 70%, 55%)" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="ipr" name="IPR" stroke="hsl(90, 40%, 45%)" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="ipr" name="Precisão" stroke="hsl(90, 40%, 45%)" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -863,10 +842,7 @@ export default function RelatorioMensalPage() {
                 {formatarHoras(num(projecao.projecao_horas_mes ?? projecao.horas_projetadas ?? projecao.horas))}
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta {num(projecao.meta_horas_mes, 88)}h ·{" "}
-                <span className={(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "text-success" : "text-critical"}>
-                  {(projecao.on_track_meta_horas ?? projecao.on_track_horas) ? "ON TRACK" : "ABAIXO"}
-                </span>
+                Projeção descritiva, sem meta mensal imposta.
               </p>
               {num(projecao.dias_restantes) > 0 && num(projecao.horas_necessarias_por_dia) > 0 && (
                 <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
@@ -880,10 +856,7 @@ export default function RelatorioMensalPage() {
                 {num(projecao.projecao_questoes_mes ?? projecao.questoes_projetadas ?? projecao.questoes).toLocaleString("pt-BR")}
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Meta {num(projecao.meta_questoes_mes, 1400).toLocaleString("pt-BR")} ·{" "}
-                <span className={(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "text-success" : "text-critical"}>
-                  {(projecao.on_track_meta_questoes ?? projecao.on_track_questoes) ? "ON TRACK" : "ABAIXO"}
-                </span>
+                A distribuição de estudo é definida pelo seu ciclo.
               </p>
               {num(projecao.dias_restantes) > 0 && num(projecao.questoes_necessarias_por_dia) > 0 && (
                 <p className="text-[10px] text-muted-foreground/80 font-mono mt-1">
@@ -899,7 +872,7 @@ export default function RelatorioMensalPage() {
       {Object.keys(correlacoes).length > 0 && (
         <Section title="Correlações" icon={GitCompareArrows}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {Object.entries(correlacoes).map(([k, v]) => {
+            {Object.entries(correlacoes).filter(([k])=>k !== "nota").map(([k, v]) => {
               const val = v === null || v === undefined ? null : num(v);
               return (
                 <div key={k} className="p-4 rounded-lg border border-border bg-card/80">
@@ -930,7 +903,7 @@ export default function RelatorioMensalPage() {
                   <th className="text-right py-2 px-2">Peso</th>
                   <th className="text-right py-2 px-2">% Tempo</th>
                   <th className="text-right py-2 px-2">% Questões</th>
-                  <th className="text-right py-2 px-2">IPR</th>
+                  <th className="text-right py-2 px-2">Precisão</th>
                   <th className="text-center py-2 pl-2">Status</th>
                 </tr>
               </thead>

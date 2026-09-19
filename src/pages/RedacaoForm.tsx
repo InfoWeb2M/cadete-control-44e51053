@@ -39,7 +39,7 @@ export default function RedacaoForm() {
     <AppLayout>
       <div className="page-header">
         <h1 className="page-title">Nova Redação</h1>
-        <p className="page-subtitle">Registre uma redação para avaliação</p>
+        <p className="page-subtitle">Registre as notas da correção ENEM. Elas não equivalem à rubrica EsPCEx.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-5 sm:space-y-6">

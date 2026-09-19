@@ -14,10 +14,13 @@ import {
     Timer,
     X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const navItems = [
+    { to: "/estudar", icon: Target, label: "Estudar agora", code: "▶" },
+    { to: "/metas", icon: Target, label: "Metas", code: "◎" },
+    { to: "/conteudos", icon: BookOpen, label: "Conteúdos", code: "◈" },
     { to: "/", icon: LayoutDashboard, label: "Dashboard", code: "01" },
     { to: "/sessao", icon: BookOpen, label: "Sessão de Estudo", code: "02" },
     { to: "/bloco", icon: ListChecks, label: "Bloco de Questões", code: "03" },
@@ -34,6 +37,23 @@ const navItems = [
 export default function AppSidebar() {
     const location = useLocation();
     const [open, setOpen] = useState(false);
+    const asideRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+        if (!open) return;
+        const previous = document.activeElement as HTMLElement | null;
+        const focusable = () => Array.from(asideRef.current?.querySelectorAll<HTMLElement>('button, a[href]') || []).filter(e => e.offsetParent !== null);
+        focusable()[0]?.focus();
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setOpen(false);
+            if (e.key === 'Tab') {
+                const nodes = focusable(), first=nodes[0], last=nodes[nodes.length-1];
+                if (e.shiftKey && document.activeElement === first) {e.preventDefault();last?.focus();}
+                else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first?.focus();}
+            }
+        };
+        document.addEventListener('keydown',handler);
+        return () => {document.removeEventListener('keydown',handler);previous?.focus();};
+    }, [open]);
     const [time, setTime] = useState(new Date());
 
     // Live clock for the sidebar HUD
@@ -86,12 +106,12 @@ export default function AppSidebar() {
             />
 
             {/* SIDEBAR */}
-            <aside
+            <aside ref={asideRef} aria-label="Menu principal"
                 className={`
           fixed left-0 top-0 z-50 h-screen w-[78%] max-w-[300px] md:w-64
           border-r border-sidebar-border bg-sidebar flex flex-col
           transform transition-transform duration-300 ease-out
-          ${open ? "translate-x-0" : "-translate-x-full"}
+          ${open ? "translate-x-0" : "-translate-x-full invisible md:visible"}
           md:translate-x-0
           overflow-hidden
         `}
@@ -182,7 +202,7 @@ export default function AppSidebar() {
                         <p className="text-[9px] text-muted-foreground tracking-wider uppercase">
                             EsPCEx · Sistema Tático
                         </p>
-                        <span className="text-[9px] font-mono text-accent/80">v2.0</span>
+                        <span className="text-[9px] font-mono text-accent/80">v2.2</span>
                     </div>
                 </div>
             </aside>

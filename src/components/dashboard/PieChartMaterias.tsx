@@ -28,9 +28,12 @@ interface RadialBarProps {
   totalQuestoes?: number;
   totalAcertos?: number;
   horasEstudo?: number;
+  blocos?: number;
 }
 
-function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: RadialBarProps) {
+function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo, blocos=0 }: RadialBarProps) {
+  const enough=(totalQuestoes||0)>=20&&blocos>=2;
+  const tone=enough?getIprColor(ipr):'hsl(var(--muted-foreground))';
   const size = 120;
   const strokeWidth = 10;
   const radius = (size - strokeWidth) / 2;
@@ -86,20 +89,20 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
                   cy={size / 2}
                   r={radius}
                   fill="none"
-                  stroke={getIprColor(ipr)}
+                  stroke={tone}
                   strokeWidth={strokeWidth}
                   strokeLinecap="round"
                   strokeDasharray={circumference}
                   strokeDashoffset={animatedOffset}
                   style={{
                     transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    filter: ipr >= 80 && isVisible ? `drop-shadow(0 0 6px ${getIprColor(ipr)})` : "none",
+                    filter: enough && ipr >= 80 && isVisible ? `drop-shadow(0 0 6px ${tone})` : "none",
                   }}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-lg font-mono font-bold text-foreground">
-                  {ipr.toFixed(0)}%
+                  {totalQuestoes?`${ipr.toFixed(0)}%`:'—'}
                 </span>
               </div>
             </div>
@@ -109,9 +112,9 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
               </span>
               <span
                 className="text-[10px] font-mono uppercase tracking-wider"
-                style={{ color: getIprColor(ipr) }}
+                style={{ color: tone }}
               >
-                {ipr >= 80 ? "Excelente" : ipr >= 70 ? "Operacional" : "Crítico"}
+                {!totalQuestoes?'Sem prática':!enough?'Amostra pequena':ipr >= 80 ? 'Bom' : ipr >= 70 ? 'Regular' : 'Conferir erros'}
               </span>
             </div>
           </div>
@@ -137,9 +140,9 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo }: R
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">IPR</span>
+              <span className="text-muted-foreground">Precisão</span>
               <span className="font-mono font-bold" style={{ color: getIprColor(ipr) }}>
-                {ipr.toFixed(1)}%
+                {totalQuestoes?`${ipr.toFixed(1)}%`:'Sem questões'}
               </span>
             </div>
           </div>
@@ -163,13 +166,14 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
         totalQuestoes: item.total_questoes,
         totalAcertos: item.total_acertos,
         horasEstudo: item.horas_estudo,
+        blocos: item.amostra_blocos,
       })),
     [data]
   );
 
   const avgIpr = useMemo(() => {
-    if (!pieData.length) return 0;
-    return pieData.reduce((sum, d) => sum + d.ipr, 0) / pieData.length;
+    const total=pieData.reduce((n,d)=>n+(d.totalQuestoes||0),0);
+    return total?pieData.reduce((n,d)=>n+(d.totalAcertos||0),0)/total*100:null;
   }, [pieData]);
 
   if (!pieData.length) {
@@ -177,7 +181,7 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-medium tracking-wider uppercase text-muted-foreground">
-            IPR por Matéria
+            Precisão por Matéria
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8 text-center text-muted-foreground">
@@ -192,19 +196,18 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">
-            IPR por Matéria
+            Precisão por Matéria
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Índice de Performance por matéria · Média:{" "}
+            Acertos / questões · Precisão conjunta:{" "}
             <span
-              className="font-mono font-semibold"
-              style={{ color: getIprColor(avgIpr) }}
+              className="font-mono font-semibold text-foreground"
             >
-              {avgIpr.toFixed(0)}%
+              {avgIpr===null?'—':`${avgIpr.toFixed(0)}%`}
             </span>
           </p>
         </div>
-        <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <div className="hidden sm:flex items-center gap-4 text-[10px] uppercase tracking-wider text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--success))" }} />
             <span>≥80%</span>
@@ -220,6 +223,7 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-4 pb-6">
+        <p className="text-xs text-muted-foreground mb-3">Cores de desempenho só aparecem com pelo menos 20 questões em 2 blocos. Limite operacional, não diagnóstico de domínio.</p>
         <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
           {pieData.map((entry) => (
             <RadialBar
@@ -230,6 +234,7 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
               totalQuestoes={entry.totalQuestoes}
               totalAcertos={entry.totalAcertos}
               horasEstudo={entry.horasEstudo}
+              blocos={entry.blocos}
             />
           ))}
         </div>

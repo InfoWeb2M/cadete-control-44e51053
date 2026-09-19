@@ -2,27 +2,28 @@ import { Shield, AlertTriangle, TrendingUp, TrendingDown, Minus } from "lucide-r
 
 interface MissionStatusProps {
   status: string;
+  variant?: string;
   tendencia: string;
   assuntosCriticos: string[];
 }
 
-export default function MissionStatus({ status, tendencia, assuntosCriticos }: MissionStatusProps) {
-  const isCumprida = status === "MISSÃO CUMPRIDA";
+export default function MissionStatus({ status, variant, tendencia, assuntosCriticos }: MissionStatusProps) {
+  const isCumprida = variant === "success";
   const TendIcon = tendencia === "ASCENDENTE" ? TrendingUp : tendencia === "DECLÍNIO" ? TrendingDown : Minus;
-  const tendColor = tendencia === "ASCENDENTE" ? "text-success" : tendencia === "DECLÍNIO" ? "text-critical" : "text-warning";
-  const tendBg = tendencia === "ASCENDENTE" ? "bg-success/10 border-success/30" : tendencia === "DECLÍNIO" ? "bg-critical/10 border-critical/30" : "bg-warning/10 border-warning/30";
+  const tendColor = tendencia === "ASCENDENTE" ? "text-success" : tendencia === "DECLÍNIO" ? "text-critical" : "text-muted-foreground";
+  const tendBg = tendencia === "ASCENDENTE" ? "bg-success/10 border-success/30" : tendencia === "DECLÍNIO" ? "bg-critical/10 border-critical/30" : "bg-secondary border-border";
 
   return (
     <div className="tac-card h-full flex flex-col">
       {/* Status header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className={`relative p-2.5 rounded-lg ${isCumprida ? "bg-success/10" : "bg-critical/10"}`}>
-          <Shield className={`h-5 w-5 ${isCumprida ? "text-success" : "text-critical"}`} />
-          <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full animate-pulse-glow ${isCumprida ? "bg-success" : "bg-critical"}`} />
+        <div className={`relative p-2.5 rounded-lg ${isCumprida ? "bg-success/10" : "bg-accent/10"}`}>
+          <Shield className={`h-5 w-5 ${isCumprida ? "text-success" : "text-accent"}`} />
+          <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full animate-pulse-glow ${isCumprida ? "bg-success" : "bg-accent"}`} />
         </div>
         <div className="min-w-0">
           <p className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase">Status da Missão</p>
-          <p className={`text-base sm:text-lg font-bold tracking-wide ${isCumprida ? "text-success" : "text-critical"}`}>
+          <p className={`text-base sm:text-lg font-bold tracking-wide ${isCumprida ? "text-success" : "text-accent"}`}>
             {status}
           </p>
         </div>
@@ -41,7 +42,7 @@ export default function MissionStatus({ status, tendencia, assuntosCriticos }: M
       <div className="flex-1">
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <AlertTriangle className="h-3 w-3 text-critical" />
-          Assuntos Críticos
+          Assuntos para conferir
           {assuntosCriticos.length > 0 && (
             <span className="ml-auto px-1.5 py-0.5 rounded-md bg-critical/15 text-critical text-[9px] font-mono">
               {assuntosCriticos.length}
@@ -49,7 +50,7 @@ export default function MissionStatus({ status, tendencia, assuntosCriticos }: M
           )}
         </p>
         {assuntosCriticos.length === 0 ? (
-          <p className="text-xs text-success/80">Nenhum assunto crítico identificado.</p>
+          <p className="text-xs text-muted-foreground">Nenhum alerta com a amostra mínima neste período. Isso não comprova domínio.</p>
         ) : (
           <ul className="space-y-1.5">
             {assuntosCriticos.map((a, i) => (

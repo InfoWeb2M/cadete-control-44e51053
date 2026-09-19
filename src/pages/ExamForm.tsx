@@ -11,14 +11,20 @@ export default function ExamPage() {
   const [totalQ, setTotalQ] = useState("");
   const [totalA, setTotalA] = useState("");
   const [tempo, setTempo] = useState("");
+  const [ansiedadeSet, setAnsiedadeSet] = useState(false);
   const [ansiedade, setAnsiedade] = useState(3);
+  const [fadigaSet, setFadigaSet] = useState(false);
   const [fadiga, setFadiga] = useState(3);
+  const [sonoSet, setSonoSet] = useState(false);
   const [sono, setSono] = useState(3);
   const [resultado, setResultado] = useState<number | null>(null);
 
   const { data: simulados, isLoading: loadingSimulados } = useSimulados();
 
   const resetForm = () => {
+    setSonoSet(false);
+    setFadigaSet(false);
+    setAnsiedadeSet(false);
     setCiclo(""); setSemana(""); setTotalQ(""); setTotalA(""); setTempo("");
     setAnsiedade(3); setFadiga(3); setSono(3);
   };
@@ -45,9 +51,9 @@ export default function ExamPage() {
       total_questoes: tq,
       total_acertos: ta,
       tempo_total_segundos: parseInt(tempo) * 60,
-      nivel_ansiedade: ansiedade,
-      nivel_fadiga: fadiga,
-      qualidade_sono: sono,
+      nivel_ansiedade: ansiedadeSet ? ansiedade : null,
+      nivel_fadiga: fadigaSet ? fadiga : null,
+      qualidade_sono: sonoSet ? sono : null,
     };
     mutation.mutate(data);
   };
@@ -93,14 +99,14 @@ export default function ExamPage() {
               <input type="number" min={1} value={tempo} onChange={(e) => setTempo(e.target.value)} className="form-input" placeholder="Ex: 180" />
             </FieldGroup>
             <div className="grid grid-cols-3 gap-2 sm:gap-4">
-              <FieldGroup label={`Ansiedade: ${ansiedade}`}>
-                <input type="range" min={1} max={5} value={ansiedade} onChange={(e) => setAnsiedade(+e.target.value)} className="w-full accent-accent" />
+              <FieldGroup label={`Ansiedade: ${ansiedadeSet ? ansiedade : "não informado (opcional)"}`}>
+                <input type="range" min={1} max={5} value={ansiedade} onChange={(e) => {setAnsiedadeSet(true); setAnsiedade(+e.target.value);}} className="w-full accent-accent" />
               </FieldGroup>
-              <FieldGroup label={`Fadiga: ${fadiga}`}>
-                <input type="range" min={1} max={5} value={fadiga} onChange={(e) => setFadiga(+e.target.value)} className="w-full accent-accent" />
+              <FieldGroup label={`Fadiga: ${fadigaSet ? fadiga : "não informado (opcional)"}`}>
+                <input type="range" min={1} max={5} value={fadiga} onChange={(e) => {setFadigaSet(true); setFadiga(+e.target.value);}} className="w-full accent-accent" />
               </FieldGroup>
-              <FieldGroup label={`Sono: ${sono}`}>
-                <input type="range" min={1} max={5} value={sono} onChange={(e) => setSono(+e.target.value)} className="w-full accent-accent" />
+              <FieldGroup label={`Sono: ${sonoSet ? sono : "não informado (opcional)"}`}>
+                <input type="range" min={1} max={5} value={sono} onChange={(e) => {setSonoSet(true); setSono(+e.target.value);}} className="w-full accent-accent" />
               </FieldGroup>
             </div>
             <button type="submit" disabled={mutation.isPending}
@@ -140,9 +146,9 @@ export default function ExamPage() {
 
 function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</label>
+    <fieldset>
+      <legend className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</legend>
       {children}
-    </div>
+    </fieldset>
   );
 }

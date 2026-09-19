@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
-import { useBlocos } from "@/hooks/usePerformance";
+import { useBlocos, useSessoes } from "@/hooks/usePerformance";
 import { useMaterias, useAssuntos } from "@/hooks/useConfiguracoes";
 import { AlertTriangle, Clock, Flame, RotateCcw, Search, ShieldAlert } from "lucide-react";
 
@@ -15,8 +15,10 @@ interface RevisaoItem {
   ultima_data: Date;
   dias: number;
   total_blocos: number;
+  total_sessoes: number;
   total_questoes: number;
   total_acertos: number;
+  total_minutos: number;
   percentual_acerto: number;
   level: UrgencyLevel;
 }
@@ -50,50 +52,79 @@ function levelFor(dias: number): UrgencyLevel {
 const LEVEL_ORDER: UrgencyLevel[] = ["urgente", "critico", "atencao", "recente", "fresco"];
 
 export default function ListaRevisaoPage() {
-  const { data: blocos, isLoading, isError } = useBlocos(0, 1000);
+  const { data: blocos, isLoading: isLoadingBlocos, isError: isErrorBlocos } = useBlocos(0, 500);
+  const { data: sessoes, isLoading: isLoadingSessoes, isError: isErrorSessoes } = useSessoes(0, 500);
   const { data: materias } = useMaterias();
   const { data: assuntos } = useAssuntos();
 
   const [busca, setBusca] = useState("");
   const [filtroLevel, setFiltroLevel] = useState<UrgencyLevel | "todos">("todos");
 
+  const isLoading = isLoadingBlocos || isLoadingSessoes;
+  const isError = isErrorBlocos || isErrorSessoes;
+
   const items: RevisaoItem[] = useMemo(() => {
-    if (!blocos || blocos.length === 0) return [];
+    const temBlocos = blocos && blocos.length > 0;
+    const temSessoes = sessoes && sessoes.length > 0;
+    if (!temBlocos && !temSessoes) return [];
+
     const mMap = new Map(materias?.map(m => [m.id, m.nome]) ?? []);
     const aMap = new Map(assuntos?.map(a => [a.id, a.nome]) ?? []);
 
     const grupos = new Map<string, RevisaoItem>();
     const now = Date.now();
 
-    for (const b of blocos) {
-      const key = b.assunto_id;
-      const data = new Date(b.data ?? b.criado_em);
-      const existente = grupos.get(key);
+    const diasDesde = (dataStr: string) =>
+      Math.floor((now - new Date(dataStr).getTime()) / (1000 * 60 * 60 * 24));
 
-      if (!existente) {
-        const dias = Math.floor((now - data.getTime()) / (1000 * 60 * 60 * 24));
-        grupos.set(key, {
-          assunto_id: b.assunto_id,
-          assunto_nome: aMap.get(b.assunto_id) ?? b.assunto_id,
-          materia_id: b.materia_id,
-          materia_nome: mMap.get(b.materia_id) ?? b.materia_id,
-          ultima_data: data,
-          dias,
-          total_blocos: 1,
-          total_questoes: b.total_questoes,
-          total_acertos: b.total_acertos,
+    const getOrCreate = (assunto_id: string, materia_id: string, dataStr: string) => {
+      let item = grupos.get(assunto_id);
+      if (!item) {
+        item = {
+          assunto_id,
+          assunto_nome: aMap.get(assunto_id) ?? assunto_id,
+          materia_id,
+          materia_nome: mMap.get(materia_id) ?? materia_id,
+          ultima_data: new Date(dataStr),
+          dias: diasDesde(dataStr),
+          total_blocos: 0,
+          total_sessoes: 0,
+          total_questoes: 0,
+          total_acertos: 0,
+          total_minutos: 0,
           percentual_acerto: 0,
           level: "fresco",
-        });
-      } else {
-        existente.total_blocos += 1;
-        existente.total_questoes += b.total_questoes;
-        existente.total_acertos += b.total_acertos;
-        if (data.getTime() > existente.ultima_data.getTime()) {
-          existente.ultima_data = data;
-          existente.dias = Math.floor((now - data.getTime()) / (1000 * 60 * 60 * 24));
-        }
+        };
+        grupos.set(assunto_id, item);
       }
+      return item;
+    };
+
+    const atualizaData = (item: RevisaoItem, dataStr: string) => {
+      const data = new Date(dataStr);
+      if (data.getTime() > item.ultima_data.getTime()) {
+        item.ultima_data = data;
+        item.dias = diasDesde(dataStr);
+      }
+    };
+
+    // Blocos de questões
+    for (const b of blocos ?? []) {
+      const dataStr = b.data ?? b.criado_em;
+      const item = getOrCreate(b.assunto_id, b.materia_id, dataStr);
+      item.total_blocos += 1;
+      item.total_questoes += b.total_questoes;
+      item.total_acertos += b.total_acertos;
+      atualizaData(item, dataStr);
+    }
+
+    // Sessões de estudo (teoria/questões/revisão) — também contam como contato com o assunto
+    for (const s of sessoes ?? []) {
+      const dataStr = s.data ?? s.criado_em;
+      const item = getOrCreate(s.assunto_id, s.materia_id, dataStr);
+      item.total_sessoes += 1;
+      item.total_minutos += s.minutos_liquidos;
+      atualizaData(item, dataStr);
     }
 
     const arr = Array.from(grupos.values()).map(it => ({
@@ -104,7 +135,7 @@ export default function ListaRevisaoPage() {
 
     arr.sort((a, b) => b.dias - a.dias);
     return arr;
-  }, [blocos, materias, assuntos]);
+  }, [blocos, sessoes, materias, assuntos]);
 
   const counts = useMemo(() => {
     const c: Record<UrgencyLevel, number> = { fresco: 0, recente: 0, atencao: 0, critico: 0, urgente: 0 };
@@ -129,7 +160,7 @@ export default function ListaRevisaoPage() {
         <h1 className="page-title">Lista de Revisão</h1>
         <p className="page-subtitle">
           Todos os assuntos que você já estudou, ordenados por urgência de revisão.
-          Cada novo bloco reinicia a contagem daquele assunto.
+          Qualquer bloco de questões ou sessão de estudo reinicia a contagem daquele assunto.
         </p>
       </div>
 
@@ -138,7 +169,7 @@ export default function ListaRevisaoPage() {
       ) : isError ? (
         <ErrorState />
       ) : items.length === 0 ? (
-        <EmptyState message="Nenhum bloco registrado ainda. Registre um bloco de questões para começar a montar sua lista de revisão." />
+        <EmptyState message="Nenhum bloco ou sessão registrada ainda. Registre um estudo para começar a montar sua lista de revisão." />
       ) : (
         <>
           {/* LEGENDA / FILTROS */}
@@ -199,6 +230,7 @@ export default function ListaRevisaoPage() {
               {filtered.map(item => {
                 const cfg = LEVELS[item.level];
                 const Icon = cfg.icon;
+                const totalRegistros = item.total_blocos + item.total_sessoes;
                 return (
                   <div
                     key={item.assunto_id}
@@ -215,7 +247,13 @@ export default function ListaRevisaoPage() {
                         {item.assunto_nome}
                       </p>
                       <p className="text-[11px] text-muted-foreground truncate font-mono">
-                        {item.materia_nome} · {item.total_blocos} bloco{item.total_blocos > 1 ? "s" : ""} · {item.total_acertos}/{item.total_questoes} ({item.percentual_acerto}%)
+                        {item.materia_nome} · {totalRegistros} registro{totalRegistros > 1 ? "s" : ""}
+                        {item.total_blocos > 0 && (
+                          <> · {item.total_acertos}/{item.total_questoes} ({item.percentual_acerto}%)</>
+                        )}
+                        {item.total_sessoes > 0 && (
+                          <> · {item.total_minutos}min estudo</>
+                        )}
                       </p>
                     </div>
 

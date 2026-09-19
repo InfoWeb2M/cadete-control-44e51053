@@ -12,13 +12,17 @@ export default function SessionPage() {
   const [assuntoId, setAssuntoId] = useState("");
   const [tipo, setTipo] = useState<"TEORIA" | "REVISAO">("TEORIA");
   const [minutos, setMinutos] = useState("");
+  const [focoSet, setFocoSet] = useState(false);
   const [foco, setFoco] = useState(3);
+  const [energiaSet, setEnergiaSet] = useState(false);
   const [energia, setEnergia] = useState(3);
 
   const { data: materias } = useMaterias();
   const { data: sessoes, isLoading: loadingSessoes } = useSessoes();
 
   const resetForm = () => {
+    setEnergiaSet(false);
+    setFocoSet(false);
     setMateriaId(""); setAssuntoId(""); setMinutos(""); setFoco(3); setEnergia(3);
   };
 
@@ -35,8 +39,8 @@ export default function SessionPage() {
       assunto_id: assuntoId,
       tipo_sessao: tipo,
       minutos_liquidos: parseInt(minutos),
-      nivel_foco: foco,
-      nivel_energia: energia,
+      nivel_foco: focoSet ? foco : null,
+      nivel_energia: energiaSet ? energia : null,
     };
     mutation.mutate(data);
   };
@@ -86,11 +90,11 @@ export default function SessionPage() {
             </FieldGroup>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <FieldGroup label={`Foco: ${foco}`}>
-                <input type="range" min={1} max={5} value={foco} onChange={(e) => setFoco(+e.target.value)} className="w-full accent-accent" />
+              <FieldGroup label={`Foco: ${focoSet ? foco : "não informado (opcional)"}`}>
+                <input type="range" min={1} max={5} value={foco} onChange={(e) => {setFocoSet(true); setFoco(+e.target.value);}} className="w-full accent-accent" />
               </FieldGroup>
-              <FieldGroup label={`Energia: ${energia}`}>
-                <input type="range" min={1} max={5} value={energia} onChange={(e) => setEnergia(+e.target.value)} className="w-full accent-accent" />
+              <FieldGroup label={`Energia: ${energiaSet ? energia : "não informado (opcional)"}`}>
+                <input type="range" min={1} max={5} value={energia} onChange={(e) => {setEnergiaSet(true); setEnergia(+e.target.value);}} className="w-full accent-accent" />
               </FieldGroup>
             </div>
 
@@ -128,9 +132,9 @@ export default function SessionPage() {
 
 function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</label>
+    <fieldset>
+      <legend className="block text-[10px] sm:text-xs font-medium tracking-wider text-muted-foreground uppercase mb-1.5">{label}</legend>
       {children}
-    </div>
+    </fieldset>
   );
 }
