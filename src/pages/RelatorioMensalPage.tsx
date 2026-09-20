@@ -385,7 +385,7 @@ export default function RelatorioMensalPage() {
     total: num(e.total_ocorrencias ?? e.total ?? e.quantidade),
   }));
   const totalErros = num(erros.total_erros_registrados ?? erros.total ?? erros.total_erros);
-  const tendenciaErros = String(erros.tendencia_erro ?? erros.tendencia ?? "");
+  const tendenciaErros = String(erros?.tendencia_erro ?? erros?.tendencia ?? "");
 
   const simuladosLista = Array.isArray(simulados)
     ? (simulados as any[])
