@@ -65,7 +65,6 @@ const App = () => (
           <Route path="/redacoes/nova" element={<RedacaoForm />} />
           <Route path="/redacoes/:id" element={<RedacaoDetail />} />
           <Route path="/countdown" element={<CountdownPage />} />
-          <Route path="/cronograma" element={<GoalsPage scheduleOnly />} />
           <Route path="/metas" element={<GoalsPage />} />
           <Route path="/relatorio-mensal" element={<RelatorioMensalPage />} />
           <Route path="/revisao" element={<ReviewPage />} />
