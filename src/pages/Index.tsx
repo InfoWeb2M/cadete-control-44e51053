@@ -88,7 +88,14 @@ export default function Dashboard() {
       </AppLayout>
     );
 
-  const d = dashboard!;
+  if (!dashboard)
+    return (
+      <AppLayout>
+        <ErrorState message="Painel sem dados no momento." />
+      </AppLayout>
+    );
+
+  const d = dashboard;
 
   const agora = new Date();
   let inicioPeriodo = new Date(2000, 0, 1);
