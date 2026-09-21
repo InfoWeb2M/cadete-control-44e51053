@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
 import { formatarHoras } from "@/lib/utils";
@@ -72,7 +71,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo, blo
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div ref={ref} className="flex flex-col items-center gap-2 p-3 cursor-pointer" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease-out, transform 0.6s ease-out' }}>
+          <div ref={ref} className="flex flex-col items-center gap-2 rounded-lg border border-border/60 bg-secondary/20 p-3 cursor-pointer transition-colors hover:border-olive/50 hover:bg-secondary/40" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease-out, transform 0.6s ease-out' }}>
             <div className="relative" style={{ width: size, height: size }}>
               <svg width={size} height={size} className="-rotate-90" overflow="visible">
                 <circle
@@ -178,67 +177,63 @@ export default function PieChartMaterias({ data }: PieChartMateriasProps) {
 
   if (!pieData.length) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium tracking-wider uppercase text-muted-foreground">
-            Precisão por Matéria
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-8 text-center text-muted-foreground">
+      <div className="tac-card">
+        <p className="module-title">Precisão por Matéria</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">
           Nenhuma matéria disponível
-        </CardContent>
-      </Card>
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card className="col-span-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <div className="tac-card">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <div>
-          <CardTitle className="text-xl font-bold tracking-tight text-foreground">
-            Precisão por Matéria
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="module-title mb-1.5">Precisão por Matéria</p>
+          <p className="text-xs text-muted-foreground">
             Acertos / questões · Precisão conjunta:{" "}
-            <span
-              className="font-mono font-semibold text-foreground"
-            >
-              {avgIpr===null?'—':`${avgIpr.toFixed(0)}%`}
+            <span className="num font-semibold text-foreground">
+              {avgIpr === null ? "—" : `${avgIpr.toFixed(0)}%`}
             </span>
           </p>
         </div>
-        <div className="hidden sm:flex items-center gap-4 text-[10px] uppercase tracking-wider text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--success))" }} />
-            <span>≥80%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--warning))" }} />
-            <span>70-79%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "hsl(var(--critical))" }} />
-            <span>&lt;70%</span>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4 pb-6">
-        <p className="text-xs text-muted-foreground mb-3">Cores de desempenho só aparecem com pelo menos 20 questões em 2 blocos. Limite operacional, não diagnóstico de domínio.</p>
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-          {pieData.map((entry) => (
-            <RadialBar
-              key={entry.materia}
-              materia={entry.materia}
-              ipr={entry.ipr}
-              color={entry.color}
-              totalQuestoes={entry.totalQuestoes}
-              totalAcertos={entry.totalAcertos}
-              horasEstudo={entry.horasEstudo}
-              blocos={entry.blocos}
-            />
+        <div className="flex flex-wrap items-center gap-3 text-[10px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
+          {[
+            { c: "hsl(var(--success))", l: "≥80%" },
+            { c: "hsl(var(--warning))", l: "70-79%" },
+            { c: "hsl(var(--critical))", l: "<70%" },
+          ].map((i) => (
+            <span key={i.l} className="flex items-center gap-1.5">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: i.c }}
+              />
+              {i.l}
+            </span>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground/80 mb-4 max-w-2xl">
+        Cores de desempenho só aparecem com pelo menos 20 questões em 2 blocos.
+        Limite operacional, não diagnóstico de domínio.
+      </p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+        {pieData.map((entry) => (
+          <RadialBar
+            key={entry.materia}
+            materia={entry.materia}
+            ipr={entry.ipr}
+            color={entry.color}
+            totalQuestoes={entry.totalQuestoes}
+            totalAcertos={entry.totalAcertos}
+            horasEstudo={entry.horasEstudo}
+            blocos={entry.blocos}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

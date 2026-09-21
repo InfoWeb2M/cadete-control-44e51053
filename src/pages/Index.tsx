@@ -88,7 +88,14 @@ export default function Dashboard() {
       </AppLayout>
     );
 
-  const d = dashboard!;
+  if (!dashboard)
+    return (
+      <AppLayout>
+        <ErrorState message="Painel sem dados no momento." />
+      </AppLayout>
+    );
+
+  const d = dashboard;
 
   const agora = new Date();
   let inicioPeriodo = new Date(2000, 0, 1);
@@ -175,22 +182,41 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="tac-card mb-6 border-accent/40">
-        <p className="text-xs text-accent uppercase tracking-wider mb-2">
-          Próxima sessão
-        </p>
-        <p className="text-sm mb-3">
-          {suggestion.data?.recomendacao
-            ? `${suggestion.data.recomendacao.materia} · ${suggestion.data.recomendacao.assunto}`
-            : "Retome seu ciclo com uma matéria, assunto e atividade definidos."}
-        </p>
-        <Link to="/estudar" className="btn-tactical inline-flex">
-          Estudar agora
-        </Link>
+      {/* Linha 1 — Próxima sessão + Missão */}
+      <div className="bento mb-4 sm:mb-6 stagger-children">
+        <div className="bento-4 tac-card border-accent/40 flex flex-col justify-between gap-4 corner-brackets">
+          <div>
+            <p className="module-title">Próxima sessão</p>
+            <p className="text-base sm:text-lg font-heading font-semibold text-foreground">
+              {suggestion.data?.recomendacao
+                ? `${suggestion.data.recomendacao.materia} · ${suggestion.data.recomendacao.assunto}`
+                : "Ciclo aguardando definição"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1.5">
+              {suggestion.data?.recomendacao?.tarefa ??
+                "Retome seu ciclo com matéria, assunto e atividade definidos."}
+            </p>
+          </div>
+          <Link
+            to="/estudar"
+            className="btn-tactical inline-flex sm:max-w-[220px] press"
+          >
+            Estudar agora
+          </Link>
+        </div>
+
+        <div className="bento-2">
+          <MissionStatus
+            status={d.status_missao}
+            variant={d.variante_missao}
+            tendencia={d.tendencia}
+            assuntosCriticos={d.assuntos_criticos.map(getAssuntoNome)}
+          />
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 stagger-children">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 stagger-children">
         <KpiCard
           title="Horas Líquidas"
           value={formatarHoras(d.horas_liquidas)}
@@ -229,45 +255,44 @@ export default function Dashboard() {
       {series.isError && (
         <ErrorState message="Falha ao carregar as séries dos gráficos." />
       )}
+
+      {/* Linha 2 — Gráficos */}
+      <div className="bento mb-4 sm:mb-6 stagger-children">
+        <div className="bento-3">
+          <PerformanceChart
+            title="Precisão por Bloco (até 100 recentes)"
+            data={precisionData}
+            type="line"
+            color="hsl(var(--accent))"
+            unit="%"
+          />
+        </div>
+        <div className="bento-3">
+          <PerformanceChart
+            title="Simulados globais (10 recentes)"
+            data={simuladoData}
+            type="bar"
+            color="hsl(var(--olive))"
+            unit="%"
+          />
+        </div>
+      </div>
+
+      {/* Metas e recomendação */}
       <WeeklyGoals />
       {d.contexto_meta && (
         <p className="text-xs text-muted-foreground mb-3">{d.contexto_meta}</p>
       )}
-
       <CardRecomendacao d={d} />
 
-      {/* Mission Status + Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
-        <MissionStatus
-          status={d.status_missao}
-          variant={d.variante_missao}
-          tendencia={d.tendencia}
-          assuntosCriticos={d.assuntos_criticos.map(getAssuntoNome)}
-        />
-        <PerformanceChart
-          title="Precisão por Bloco (até 100 recentes)"
-          data={precisionData}
-          type="line"
-          color="hsl(43, 70%, 50%)"
-          unit="%"
-        />
-        <PerformanceChart
-          title="Simulados globais (10 recentes)"
-          data={simuladoData}
-          type="bar"
-          color="hsl(90, 40%, 35%)"
-          unit="%"
-        />
-      </div>
-
       {/* IPR por Matéria */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <PieChartMaterias data={materiasPerformance || []} />
       </div>
 
       {/* Redações */}
       <StudySuggestions />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 stagger-children">
         <UltimaRedacaoCard />
         <MediaRedacoesCard />
         <ProgressoRedacoesChart />
