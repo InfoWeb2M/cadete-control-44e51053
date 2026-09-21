@@ -219,6 +219,63 @@
     @apply inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-secondary/50 px-2.5 py-1
            text-[10px] font-mono uppercase tracking-[0.16em] text-muted-foreground;
   }
+
+  /* ---------- Rows / listas ---------- */
+  .tac-row {
+    @apply relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg
+           border border-border/70 bg-card/70 p-3 sm:p-4 transition-all duration-200
+           hover:border-accent/40 hover:bg-card hover:translate-x-[3px];
+  }
+  .tac-row::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 10%; bottom: 10%;
+    width: 2px;
+    border-radius: 2px;
+    background: hsl(var(--accent) / 0.45);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .tac-row:hover::before { opacity: 1; }
+
+  /* ---------- Tabs / segmented ---------- */
+  .tac-tabs {
+    @apply inline-flex items-center gap-1 rounded-xl border border-border/70 bg-secondary/35 p-1 overflow-x-auto;
+  }
+  .tac-tab {
+    @apply relative whitespace-nowrap rounded-lg px-3.5 py-2 text-[11px] font-mono uppercase tracking-[0.16em]
+           text-muted-foreground transition-all duration-200 hover:text-foreground;
+  }
+  .tac-tab[data-active="true"] {
+    @apply bg-olive/25 text-accent;
+    box-shadow: inset 0 0 0 1px hsl(var(--accent) / 0.35);
+  }
+
+  /* ---------- Disclosure ---------- */
+  .tac-details {
+    @apply rounded-lg border border-border/70 bg-secondary/25 px-4 py-3 transition-colors duration-200
+           hover:border-olive/50;
+  }
+  .tac-details > summary {
+    @apply cursor-pointer list-none text-xs font-mono uppercase tracking-[0.16em] text-accent
+           flex items-center justify-between gap-2;
+  }
+  .tac-details > summary::after {
+    content: "+";
+    @apply text-base leading-none text-muted-foreground transition-transform duration-200;
+  }
+  .tac-details[open] > summary::after { content: "–"; }
+
+  /* ---------- Segmented choice ---------- */
+  .seg-option {
+    @apply flex-1 rounded-lg border border-border bg-secondary/50 px-4 py-2.5 text-xs font-mono uppercase
+           tracking-[0.14em] text-muted-foreground transition-all duration-200
+           hover:border-olive/60 hover:text-foreground;
+  }
+  .seg-option[data-active="true"] {
+    @apply border-accent/60 bg-olive/25 text-accent;
+    box-shadow: 0 0 18px -8px hsl(var(--accent) / 0.8);
+  }
 }
 
 @layer utilities {
