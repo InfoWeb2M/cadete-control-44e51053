@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MateriaPerformance } from "@/lib/types";
 import { formatarHoras } from "@/lib/utils";
@@ -72,7 +71,7 @@ function RadialBar({ materia, ipr, totalQuestoes, totalAcertos, horasEstudo, blo
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div ref={ref} className="flex flex-col items-center gap-2 p-3 cursor-pointer" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease-out, transform 0.6s ease-out' }}>
+          <div ref={ref} className="flex flex-col items-center gap-2 rounded-lg border border-border/60 bg-secondary/20 p-3 cursor-pointer transition-colors hover:border-olive/50 hover:bg-secondary/40" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease-out, transform 0.6s ease-out' }}>
             <div className="relative" style={{ width: size, height: size }}>
               <svg width={size} height={size} className="-rotate-90" overflow="visible">
                 <circle
